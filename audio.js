@@ -7,10 +7,10 @@ export const audio = {
 };
 
 const ASSETS = {
-    music: 'assets/audio/ambient-theme.mp3',
-    click: 'assets/audio/ui-click.mp3',
-    success: 'assets/audio/ui-click.mp3', // Placeholder
-    transition: 'assets/audio/ui-click.mp3' // Placeholder
+    music: 'ambient-theme.mp3',
+    click: 'ui-click.mp3',
+    success: 'ui-click.mp3', // Placeholder
+    transition: 'ui-click.mp3' // Placeholder
 };
 
 export async function initAudio() {

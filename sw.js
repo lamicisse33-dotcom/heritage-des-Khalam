@@ -11,35 +11,36 @@
  * VERSION doit être incrémentée à chaque livraison, en même temps que
  * BUILD_TAG dans main.js : c'est ce changement qui purge l'ancien cache.
  */
-const VERSION = 'heritage-khalam-v2.4.0';
+const VERSION = 'heritage-khalam-v2.4.1';
 const CACHE = 'khalam-' + VERSION;
 
 const A_PRECHARGER = [
   "./",
+  "ambient-theme.mp3",
+  "audio.js",
+  "character-didi-avatar.webp",
+  "character-didi.webp",
+  "character-mila-avatar.webp",
+  "character-mila.webp",
+  "config.js",
+  "home-background.webp",
+  "icon-192.png",
+  "icon-512-maskable.png",
+  "icon-512.png",
   "index.html",
-  "manifest.webmanifest",
   "main.js",
-  "styles/site.css",
-  "modules/state.js",
-  "modules/story.js",
-  "modules/audio.js",
-  "modules/ui.js",
-  "modules/pillars.js",
-  "modules/config.js",
-  "icons/icon-192.png",
-  "icons/icon-512.png",
-  "assets/character-didi-avatar.webp",
-  "assets/character-didi.webp",
-  "assets/character-mila-avatar.webp",
-  "assets/character-mila.webp",
-  "assets/home-background.webp",
-  "assets/official-game-emblem.webp",
-  "assets/scene-destiny-summit-african-webp.webp",
-  "assets/scene-legacy-final-webp.webp",
-  "assets/scene-renaissance-african-webp.webp",
-  "assets/scene-transmission-african-webp.webp",
-  "assets/audio/ambient-theme.mp3",
-  "assets/audio/ui-click.mp3"
+  "manifest.webmanifest",
+  "official-game-emblem.webp",
+  "pillars.js",
+  "scene-destiny-summit-african-webp.webp",
+  "scene-legacy-final-webp.webp",
+  "scene-renaissance-african-webp.webp",
+  "scene-transmission-african-webp.webp",
+  "site.css",
+  "state.js",
+  "story.js",
+  "ui-click.mp3",
+  "ui.js"
 ];
 
 self.addEventListener('install', (e) => {

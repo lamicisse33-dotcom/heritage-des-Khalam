@@ -1,5 +1,5 @@
 /**
- * modules/pillars.js
+ * pillars.js
  * ---------------------------------------------------------------------------
  * Source unique de vérité pour les quatre piliers d'ÉQUILIBRE.
  *

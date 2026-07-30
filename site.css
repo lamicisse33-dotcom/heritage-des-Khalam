@@ -113,7 +113,7 @@ h1, h2, h3, .cinzel {
 }
 
 .home-bg {
-  background-image: url('../assets/home-background.webp');
+  background-image: url('home-background.webp');
   filter: brightness(0.6);
   animation: bgPulse 20s infinite ease-in-out;
 }

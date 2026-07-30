@@ -538,7 +538,7 @@ export const STORY_DATA = {
                 {
                     id: 'ch7_morning_reflection',
                     title: 'Le Premier Jour du Reste de ma Vie',
-                    image: 'assets/scene-renaissance-african-webp.webp',
+                    image: 'scene-renaissance-african-webp.webp',
                     text: "Le silence de ton appartement n'est plus pesant, il est apaisant. Après les tempêtes du chapitre précédent, tu te réveilles avec une clarté nouvelle. Les erreurs du passé ne sont plus des fardeaux, mais des leçons gravées dans ton âme. Tu te regardes dans le miroir : les traits sont plus marqués, mais le regard est plus sûr. Par quoi souhaites-tu commencer cette reconstruction ?",
                     choices: [
                         {
@@ -562,7 +562,7 @@ export const STORY_DATA = {
                 {
                     id: 'ch7_partnership_repair',
                     title: 'Le Pacte de Confiance',
-                    image: 'assets/scene-renaissance-african-webp.webp',
+                    image: 'scene-renaissance-african-webp.webp',
                     text: "Le soir venu, tu partages un thé avec Nia. Les non-dits se sont accumulés, mais l'envie de reconstruire est mutuelle. 'Nous avons survécu à la tempête', murmure-t-elle, 'mais comment allons-nous naviguer désormais ?' C'est le moment de définir les nouvelles règles de votre vie commune.",
                     choices: [
                         {
@@ -591,7 +591,7 @@ export const STORY_DATA = {
                 {
                     id: 'ch7_new_enterprise',
                     title: 'L\'Éclosion d\'un Nouveau Projet',
-                    image: 'assets/scene-renaissance-african-webp.webp',
+                    image: 'scene-renaissance-african-webp.webp',
                     text: "Une ancienne connaissance te propose de co-fonder une structure innovante, centrée sur l'impact social et le bien-être des employés. C'est l'occasion de mettre en pratique tout ce que tu as appris sur l'équilibre. Le projet est ambitieux, mais il exige une éthique irréprochable dès ses fondations.",
                     choices: [
                         {
@@ -616,7 +616,7 @@ export const STORY_DATA = {
                 {
                     id: 'ch7_baba_reunion',
                     title: 'Le Regard du Mentor',
-                    image: 'assets/scene-renaissance-african-webp.webp',
+                    image: 'scene-renaissance-african-webp.webp',
                     text: "Baba t'invite à marcher le long de la lagune. Il observe ta nouvelle posture. 'Celui qui a connu la chute connaît la valeur du sol', te dit-il avec un sourire malicieux. Il te demande quel est, selon toi, le secret de cette renaissance réussie.",
                     choices: [
                         {
@@ -646,7 +646,7 @@ export const STORY_DATA = {
                 {
                     id: 'ch8_mentorship_call',
                     title: 'L\'Appel de la Jeunesse',
-                    image: 'assets/scene-transmission-african-webp.webp',
+                    image: 'scene-transmission-african-webp.webp',
                     text: "Un groupe de jeunes diplômés sollicite ton expertise pour valider leur projet de coopérative agricole durable. Ils te voient comme une figure de réussite équilibrée. En même temps, une opportunité de conférence internationale prestigieuse à Dubaï se présente, ce qui renforcerait ton aura personnelle mais te prendrait tout ton temps libre.",
                     choices: [
                         {
@@ -679,7 +679,7 @@ export const STORY_DATA = {
                 {
                     id: 'ch8_family_values',
                     title: 'L\'Héritage des Racines',
-                    image: 'assets/scene-transmission-african-webp.webp',
+                    image: 'scene-transmission-african-webp.webp',
                     text: "Une réunion de famille importante se prépare. On te demande de prendre la parole devant les plus jeunes pour partager les valeurs qui ont guidé ton parcours. C'est l'occasion de transmettre la sagesse de Baba et tes propres découvertes sur l'Équilibre.",
                     choices: [
                         {
@@ -705,7 +705,7 @@ export const STORY_DATA = {
                 {
                     id: 'ch8_community_anchor',
                     title: 'L\'Ancre dans la Cité',
-                    image: 'assets/scene-transmission-african-webp.webp',
+                    image: 'scene-transmission-african-webp.webp',
                     text: "Ta ville souhaite lancer un centre d'incubation pour les métiers de demain et te propose d'en être le parrain ou la marraine. Cela demande un investissement personnel constant. Ta santé est stable, mais tu sens que tu dois faire un choix entre ton confort privé et cet engagement public.",
                     choices: [
                         {
@@ -730,7 +730,7 @@ export const STORY_DATA = {
                 {
                     id: 'ch8_reflection_impact',
                     title: 'L\'Écho de mes Pas',
-                    image: 'assets/scene-transmission-african-webp.webp',
+                    image: 'scene-transmission-african-webp.webp',
                     text: "En marchant avec Nia, vous croisez une personne que vous aviez aidée il y a des années. Elle vous remercie chaleureusement : sans votre intervention, sa vie aurait pris un tout autre tournant. Cela vous amène à réfléchir : quelle est la trace la plus importante que vous souhaitez laisser ?",
                     choices: [
                         {
@@ -762,7 +762,7 @@ export const STORY_DATA = {
                 {
                     id: 'ch9_ultimate_responsibility',
                     title: 'Le Sommet de la Pyramide',
-                    image: 'assets/scene-destiny-summit-african-webp.webp',
+                    image: 'scene-destiny-summit-african-webp.webp',
                     text: "Le gouvernement et les grands leaders du continent te proposent de prendre la tête d'une institution panafricaine majeure. C'est l'apogée d'une carrière, un pouvoir immense pour transformer des millions de vies. Cependant, cela exige un sacrifice quasi total de ta vie privée et une pression que ta santé, autrefois fragile, pourrait peiner à supporter.",
                     choices: [
                         {
@@ -788,7 +788,7 @@ export const STORY_DATA = {
                 {
                     id: 'ch9_the_legacy_choice',
                     title: 'L\'Héritage des Mains Ouvertes',
-                    image: 'assets/scene-destiny-summit-african-webp.webp',
+                    image: 'scene-destiny-summit-african-webp.webp',
                     text: "Ton patrimoine et ton influence sont à leur maximum. Une décision s'impose : utiliser ces ressources pour bâtir un empire familial qui durera des générations, ou créer une fondation philanthropique radicale qui redistribuera cette richesse pour l'éducation et la santé dans les régions les plus pauvres.",
                     choices: [
                         {
@@ -813,7 +813,7 @@ export const STORY_DATA = {
                 {
                     id: 'ch9_vocation_convergence',
                     title: 'Le Chant de l\'Âme',
-                    image: 'assets/scene-destiny-summit-african-webp.webp',
+                    image: 'scene-destiny-summit-african-webp.webp',
                     text: "Malgré tes succès, un appel intérieur se fait plus fort. Une vocation profonde — artistique, spirituelle ou écologique — te demande de quitter tes fonctions actuelles pour te consacrer entièrement à ce qui fait battre ton cœur depuis toujours. C'est le carrefour entre l'image que le monde a de toi et qui tu es vraiment.",
                     choices: [
                         {
@@ -837,7 +837,7 @@ export const STORY_DATA = {
                 {
                     id: 'ch9_final_destination',
                     title: 'L\'Ancre Finale',
-                    image: 'assets/scene-destiny-summit-african-webp.webp',
+                    image: 'scene-destiny-summit-african-webp.webp',
                     text: "Toutes les routes convergent vers ce dernier instant de décision. Le monde change, ta ville se transforme. Tu dois choisir où tu poseras ton ancre pour tes dernières années. Seras-tu un sage au milieu de la cité, ou une âme paisible retirée dans la nature de tes ancêtres ?",
                     choices: [
                         {
@@ -868,7 +868,7 @@ export const STORY_DATA = {
                 {
                     id: 'ch10_legacy_sage',
                     title: 'L\'Héritage du Sage',
-                    image: 'assets/scene-legacy-final-webp.webp',
+                    image: 'scene-legacy-final-webp.webp',
                     conditions: (s) => s.progress.balance.level === 'Harmonie profonde' && s.progress.stats.spirituality >= 60 && s.progress.stats.love >= 60,
                     text: "Le soir tombe sur une vie de plénitude. Tu as réussi ce que peu d'âmes accomplissent : l'harmonie totale. Ton nom est synonyme de sagesse. Ta famille est soudée, ton esprit est en paix, et ton héritage n'est pas fait de pierres, mais d'une lumière qui continuera d'éclairer ton entourage bien après ton départ. Tu as trouvé le véritable Équilibre.",
                     choices: [
@@ -882,7 +882,7 @@ export const STORY_DATA = {
                 {
                     id: 'ch10_legacy_builder',
                     title: 'L\'Héritage du Bâtisseur',
-                    image: 'assets/scene-legacy-final-webp.webp',
+                    image: 'scene-legacy-final-webp.webp',
                     conditions: (s) => s.progress.stats.argent >= 62 && s.progress.traits.ambition >= 90 && s.progress.balance.score >= 44,
                     text: "Tu contemples la cité que tu as aidé à bâtir. Tes entreprises, tes fondations et tes projets sont des piliers de la société moderne. Tu laisses derrière toi un empire et une influence qui transformeront le continent pour les siècles à venir. Si le prix a été lourd en termes de repos, ton œuvre, elle, est immortelle. Tu es le [Bâtisseur/Bâtisseuse] du Destin.",
                     choices: [
@@ -896,7 +896,7 @@ export const STORY_DATA = {
                 {
                     id: 'ch10_legacy_guide',
                     title: 'L\'Héritage du Guide',
-                    image: 'assets/scene-legacy-final-webp.webp',
+                    image: 'scene-legacy-final-webp.webp',
                     conditions: (s) => s.progress.traits.generosity >= 100 && s.progress.traits.compassion >= 56 && s.progress.stats.love >= 63,
                     text: "Autour de toi se pressent des visages reconnaissants. Ce ne sont pas tes succès personnels que l'on célèbre, mais les milliers de vies que tu as touchées, formées et sauvées. Ton héritage réside dans le cœur de chaque personne à qui tu as tendu la main. Tu as été [le Guide/la Guide], la boussole humaine au milieu des tempêtes. Ta richesse est éternelle car elle est partagée.",
                     choices: [
@@ -910,7 +910,7 @@ export const STORY_DATA = {
                 {
                     id: 'ch10_legacy_visionary',
                     title: 'L\'Héritage du Visionnaire',
-                    image: 'assets/scene-legacy-final-webp.webp',
+                    image: 'scene-legacy-final-webp.webp',
                     conditions: (s) => s.progress.traits.courage >= 55 && s.progress.traits.honesty >= 30,
                     text: "On se souviendra de toi comme de celui ou celle qui n'a jamais tremblé. Dans les moments les plus sombres, tu as porté le flambeau de l'éthique et de la vérité. Tu as ouvert des voies là où d'autres voyaient des impasses. Ton héritage est celui du courage pur, une inspiration constante pour ceux qui osent rêver d'une Afrique meilleure. Tu es [le Visionnaire/la Visionnaire] du futur.",
                     choices: [
@@ -924,7 +924,7 @@ export const STORY_DATA = {
                 {
                     id: 'ch10_legacy_incomplete',
                     title: 'L\'Héritage Inachevé',
-                    image: 'assets/scene-legacy-final-webp.webp',
+                    image: 'scene-legacy-final-webp.webp',
                     conditions: (s) => true, // Default ending
                     text: "Le bilan de ta vie est un mélange complexe d'ombres et de lumières. Tu as accompli de grandes choses, mais certains piliers sont restés fragiles. Des regrets se mêlent à tes succès, et tu sens que certaines leçons n'ont été apprises qu'à moitié. Ta trace est réelle, mais elle appelle à une nouvelle chance, un nouveau souffle pour atteindre enfin l'harmonie complète.",
                     choices: [

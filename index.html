@@ -11,17 +11,17 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="L'Héritage">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" href="icon-192.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/site.css">
+  <link rel="stylesheet" href="site.css">
 
   <!-- Préchargement des ressources du premier écran -->
-  <link rel="preload" as="image" href="assets/home-background.webp">
-  <link rel="preload" as="image" href="assets/official-game-emblem.webp">
+  <link rel="preload" as="image" href="home-background.webp">
+  <link rel="preload" as="image" href="official-game-emblem.webp">
   <!-- Ces deux chemins doublent VISUELS (config.js) : le préchargement doit
        figurer dans le HTML, avant tout module. À mettre à jour ensemble. -->
 
@@ -46,7 +46,7 @@
     <div class="menu-halo"></div>
     <div class="particles-container" id="particles"></div>
 
-    <!-- Les écrans sont injectés ici par modules/ui.js -->
+    <!-- Les écrans sont injectés ici par ui.js -->
     <div id="screen-container"></div>
 
     <!-- Le son ne peut démarrer qu'après un geste de l'utilisateur -->

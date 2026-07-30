@@ -1,14 +1,14 @@
 /**
  * main.js — Amorçage du jeu.
  * Rôle : initialiser l'état, construire l'interface, débloquer l'audio après
- * un geste utilisateur, puis passer la main à modules/ui.js.
+ * un geste utilisateur, puis passer la main à ui.js.
  */
-import { initAudio, playMusic, playSFX } from './modules/audio.js';
-import { initUI, showScreen, screens, showChapterIntro, updateProfileAvatar } from './modules/ui.js';
-import { state, checkSave, saveGame, resetForNewLife } from './modules/state.js';
-import { JEU } from './modules/config.js';
+import { initAudio, playMusic, playSFX } from './audio.js';
+import { initUI, showScreen, screens, showChapterIntro, updateProfileAvatar } from './ui.js';
+import { state, checkSave, saveGame, resetForNewLife } from './state.js';
+import { JEU } from './config.js';
 
-/** Version du build, définie dans modules/config.js. */
+/** Version du build, définie dans config.js. */
 const BUILD_TAG = JEU.BUILD_TAG;
 
 async function bootstrap() {

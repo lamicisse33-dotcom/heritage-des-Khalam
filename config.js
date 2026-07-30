@@ -1,5 +1,5 @@
 /**
- * modules/config.js
+ * config.js
  * ---------------------------------------------------------------------------
  * Identité du jeu, en un seul endroit.
  *
@@ -43,7 +43,7 @@ export const JEU = {
     CLE_SAUVEGARDE: 'khalam_heritage_save',
 
     /** Version du build. À reporter dans VERSION (sw.js) à chaque livraison. */
-    BUILD_TAG: 'v2.4.0'
+    BUILD_TAG: 'v2.4.1'
 };
 
 /**
@@ -51,7 +51,7 @@ export const JEU = {
  * ---------------------------------------------------------------------------
  * Remplacer une illustration ne demande aucune modification ailleurs :
  *
- *  1. Le plus simple — écraser le fichier dans `assets/` en gardant son nom.
+ *  1. Le plus simple — écraser le fichier dans `` en gardant son nom.
  *     Aucune ligne de code ne bouge. Pensez alors à incrémenter BUILD_TAG et
  *     VERSION (sw.js), sinon le service worker resservira l'ancienne image
  *     depuis son cache.
@@ -86,16 +86,16 @@ export const VISUELS = {
      * titre : le nom et la description restent hors du fichier, puisque le jeu
      * les redessine lui-même (nécessaire pour une future traduction).
      */
-    MILA: 'assets/character-mila.webp',
-    MILA_AVATAR: 'assets/character-mila-avatar.webp',
+    MILA: 'character-mila.webp',
+    MILA_AVATAR: 'character-mila-avatar.webp',
 
-    DIDI: 'assets/character-didi.webp',
-    DIDI_AVATAR: 'assets/character-didi-avatar.webp',
+    DIDI: 'character-didi.webp',
+    DIDI_AVATAR: 'character-didi-avatar.webp',
 
     /** Emblème de la licence. Sert aussi de base aux icônes de l'application :
-     *  s'il change, régénérer icons/icon-192.png, icon-512.png et le maskable. */
-    EMBLEME: 'assets/official-game-emblem.webp',
+     *  s'il change, régénérer icon-192.png, icon-512.png et le maskable. */
+    EMBLEME: 'official-game-emblem.webp',
 
     /** Fond de l'écran d'accueil (référencé aussi par .home-bg dans site.css). */
-    FOND_ACCUEIL: 'assets/home-background.webp'
+    FOND_ACCUEIL: 'home-background.webp'
 };
