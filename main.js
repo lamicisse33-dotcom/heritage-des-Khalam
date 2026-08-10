@@ -4,6 +4,7 @@
  * un geste utilisateur, puis passer la main à ui.js.
  */
 import { initAudio, playMusic, playSFX } from './audio.js';
+import { debloquerVoix } from './voice.js';
 import { initUI, showScreen, screens, showChapterIntro, updateProfileAvatar } from './ui.js';
 import { state, checkSave, saveGame, resetForNewLife } from './state.js';
 import { JEU } from './config.js';
@@ -38,6 +39,9 @@ async function bootstrap() {
         try {
             await initAudio();
             playMusic();
+            // iOS refuse la synthèse vocale tant qu'aucun geste utilisateur
+            // n'a eu lieu : ce bouton est le moment idoine pour l'autoriser.
+            debloquerVoix();
         } catch (error) {
             // Silently fail if audio context cannot start
         }

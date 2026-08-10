@@ -1312,3 +1312,44 @@ input, select {
   padding: 10px 6px;
   margin: 0 0 20px;
 }
+
+/* ==========================================================================
+   Mise en page sur grand écran
+   --------------------------------------------------------------------------
+   Le jeu est conçu pour un écran vertical de téléphone. Sur un moniteur, la
+   fenêtre s'étirait sur toute la largeur : les jauges du HUD se retrouvaient
+   à des mètres de leurs libellés, et l'illustration d'un dilemme, mise à
+   l'échelle sur 2000 px de large dans un cadre de 30 % de hauteur, n'en
+   montrait plus qu'une tranche — le sommet d'un crâne au lieu d'un visage.
+
+   On enferme donc le jeu dans une colonne de la largeur d'un téléphone,
+   centrée sur un fond noir. C'est la présentation habituelle d'un jeu mobile
+   servi sur le web, et cela ne change rien au rendu sur téléphone.
+   ========================================================================== */
+
+@media (min-width: 560px) {
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    padding: 0;
+  }
+
+  #game-container {
+    position: relative;
+    width: 440px;
+    max-width: 100%;
+    height: min(100dvh, 900px);
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.18),
+                0 30px 80px rgba(0, 0, 0, 0.9);
+  }
+
+  /* Ces deux couches couvraient tout l'écran : on les ramène dans la colonne. */
+  .overlay,
+  .chapter-transition {
+    position: absolute;
+  }
+}

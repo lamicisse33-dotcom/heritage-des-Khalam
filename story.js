@@ -1011,8 +1011,8 @@ export function appliquerUsure() {
  * Titre honorifique attribué à une vie selon son niveau d'équilibre final.
  */
 const TITRES_DE_VIE = {
-    'Harmonie profonde': 'Gardien de l\'Équilibre',
-    'Équilibre stable': 'Bâtisseur serein',
+    'Harmonie profonde': 'Gardien[/ne] de l\'Équilibre',
+    'Équilibre stable': 'Bâtisseu[r serein/se sereine]',
     'Équilibre fragile': 'Funambule',
     'Déséquilibre important': 'Âme en tension',
     'Rupture': 'Vie brisée'
@@ -1068,13 +1068,13 @@ export function getReputationTags() {
     const d = state.progress.decisions;
     
     // Thresholds for personality-based reputation
-    if (t.ambition >= 15) tags.push('Ambitieux');
+    if (t.ambition >= 15) tags.push('Ambitieu[x/se]');
     if (t.compassion >= 15) tags.push('Altruiste');
-    if (t.prudence >= 15) tags.push('Prudent');
-    if (t.courage >= 10) tags.push('Courageux');
+    if (t.prudence >= 15) tags.push('Prudent[/e]');
+    if (t.courage >= 10) tags.push('Courageu[x/se]');
     if (t.honesty >= 10) tags.push('Personne de confiance');
-    if (t.generosity >= 10) tags.push('Généreux');
-    if (t.resilience >= 10) tags.push('Résilient');
+    if (t.generosity >= 10) tags.push('Généreu[x/se]');
+    if (t.resilience >= 10) tags.push('Résilient[/e]');
     
     // Logic-based reputation
     const workFocus = d.filter(id => id.includes('accept') || id.includes('work') || id.includes('overtime')).length;

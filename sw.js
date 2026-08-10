@@ -11,7 +11,7 @@
  * VERSION doit être incrémentée à chaque livraison, en même temps que
  * BUILD_TAG dans main.js : c'est ce changement qui purge l'ancien cache.
  */
-const VERSION = 'heritage-khalam-v2.4.1';
+const VERSION = 'heritage-khalam-v2.6.0';
 const CACHE = 'khalam-' + VERSION;
 
 const A_PRECHARGER = [
@@ -40,7 +40,8 @@ const A_PRECHARGER = [
   "state.js",
   "story.js",
   "ui-click.mp3",
-  "ui.js"
+  "ui.js",
+  "voice.js"
 ];
 
 self.addEventListener('install', (e) => {

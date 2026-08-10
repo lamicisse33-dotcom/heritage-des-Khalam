@@ -19,6 +19,8 @@ export const state = {
         sfxEnabled: true,
         textSpeed: 30, // ms per char
         fontSize: 'md', // sm, md, lg
+        voiceEnabled: true,   // lecture à voix haute des textes
+        voiceRate: 0.95,      // débit de la voix (0.7 lent … 1.3 rapide)
         animationsEnabled: true
     },
     user: {

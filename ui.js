@@ -3,6 +3,7 @@ import { STORY_DATA, ACHIEVEMENTS, getCurrentEvent, advanceStory, calculateBalan
          checkAchievements, getReputationTags, evaluateLifePath,
          appliquerUsure, USURE_PAR_CHAPITRE } from './story.js';
 import { toggleMusic, toggleSFX } from './audio.js';
+import { lire, stopper, basculerVoix, voixDisponible } from './voice.js';
 import { PILIERS, NIVEAUX, libelleDe, largeurJauge, niveauDe, nomDuPilier,
          CHIFFRES_VISIBLES } from './pillars.js';
 import { JEU, VISUELS } from './config.js';
@@ -65,7 +66,7 @@ function avatarJoueur() {
 function formatText(text) {
     if (!text) return '';
     const isMale = state.user.protagonist === 'Mila';
-    return text.replace(/\[([^/]+)\/([^\]]+)\]/g, (_, m, f) => isMale ? m : f);
+    return text.replace(/\[([^/\]]*)\/([^\]]*)\]/g, (_, m, f) => isMale ? m : f);
 }
 
 /**
@@ -148,6 +149,19 @@ function bindScreenActions(onStart, onContinue, onProfileComplete, onProtagonist
     getEl('set-music').addEventListener('click', () => { toggleMusic(); saveGame(); updateSettingsUI(); });
     getEl('set-sfx').addEventListener('click', () => { toggleSFX(); saveGame(); updateSettingsUI(); });
 
+    getEl('set-voice').addEventListener('click', () => {
+        basculerVoix();
+        saveGame();
+        updateSettingsUI();
+        if (state.settings.voiceEnabled) lire('La lecture à voix haute est activée.');
+    });
+    document.querySelectorAll('#set-voice-rate button').forEach(b => b.addEventListener('click', () => {
+        state.settings.voiceRate = Number(b.dataset.v);
+        saveGame();
+        updateSettingsUI();
+        lire('Voici le débit choisi.');   // le joueur juge à l'oreille
+    }));
+
     document.querySelectorAll('#set-speed button').forEach(b => b.addEventListener('click', () => {
         state.settings.textSpeed = Number(b.dataset.v);
         saveGame();
@@ -224,6 +238,8 @@ function bindScreenActions(onStart, onContinue, onProfileComplete, onProtagonist
  * Screen Navigation
  */
 export function showScreen(screenId) {
+    // La voix ne doit jamais poursuivre une scène qu'on vient de quitter.
+    stopper();
     const allScreens = document.querySelectorAll('.screen');
     allScreens.forEach(s => s.classList.remove('active'));
     
@@ -272,7 +288,7 @@ export function updatePillarGauges() {
     const repEl = getEl('hud-reputation');
     if (repEl) {
         const tags = getReputationTags();
-        repEl.textContent = tags.length > 0 ? tags.join(' • ') : 'En quête d\'équilibre';
+        repEl.textContent = tags.length > 0 ? formatText(tags.join(' • ')) : 'En quête d\'équilibre';
     }
 
     const eqEl = getEl('hud-balance');
@@ -367,7 +383,7 @@ function showFinDeVie() {
     getEl('game-scroll-container').innerHTML = `
         <div class="summary-card fin-card">
             <p class="summary-kicker">LA BALANCE A PARLÉ</p>
-            <h2 class="cinzel fin-titre">${bilan.titre}</h2>
+            <h2 class="cinzel fin-titre">${formatText(bilan.titre)}</h2>
             <p class="fin-niveau">${bilan.balanceLevel}</p>
 
             ${getPillarGridMarkup()}
@@ -391,6 +407,8 @@ function showFinDeVie() {
             </div>
         </div>
     `;
+
+    lire(`${formatText(bilan.titre)}. ${bilan.balanceLevel}.`);
 
     getEl('fin-new-btn').addEventListener('click', () => {
         resetForNewLife();
@@ -442,6 +460,10 @@ export function updateCurrentEventUI() {
     const txt = getEl('typing-text');
     const liste = container.querySelector('.choices-list');
     const reveler = () => { if (liste) liste.classList.add('visible'); };
+
+    // Lecture à voix haute de la scène. Lancée en même temps que l'animation
+    // de frappe : le texte s'écrit pendant qu'il se dit.
+    lire(`${event.title}. ${eventText}`);
 
     // BUG corrigé : clearInterval recevait `txt.dataset.timer`, une chaîne.
     // L'intervalle n'était jamais arrêté et il en restait un par événement,
@@ -553,7 +575,9 @@ function handleChoice(choice, eventId) {
     
     getEl('dilemma-container').classList.add('hidden');
     getEl('result-container').classList.remove('hidden');
-    getEl('result-text').textContent = formatText(choice.result);
+    const resultat = formatText(choice.result);
+    getEl('result-text').textContent = resultat;
+    lire(resultat);
     
     playSFX('success');
 }
@@ -719,6 +743,18 @@ function getSettingsTemplate() {
                     <span>Effets sonores</span>
                     <button id="set-sfx" class="bascule"></button>
                 </div>
+                <div class="reglage">
+                    <span>Lecture à voix haute</span>
+                    <button id="set-voice" class="bascule"></button>
+                </div>
+                <div class="reglage colonne" id="reglage-debit">
+                    <span>Débit de la voix</span>
+                    <div class="segments" id="set-voice-rate">
+                        <button data-v="0.75">Posé</button>
+                        <button data-v="0.95">Normal</button>
+                        <button data-v="1.15">Vif</button>
+                    </div>
+                </div>
                 <div class="reglage colonne">
                     <span>Vitesse du texte</span>
                     <div class="segments" id="set-speed">
@@ -760,6 +796,27 @@ function updateSettingsUI() {
 
     document.querySelectorAll('#set-speed button').forEach(b =>
         b.classList.toggle('on', Number(b.dataset.v) === Number(state.settings.textSpeed)));
+
+    const bv = getEl('set-voice');
+    if (bv) {
+        if (!voixDisponible()) {
+            // Aucune synthèse vocale sur cet appareil : on le dit, plutôt que
+            // de laisser un bouton qui ne ferait rien.
+            bv.textContent = 'Indisponible';
+            bv.disabled = true;
+            bv.classList.remove('on');
+        } else {
+            bv.textContent = state.settings.voiceEnabled ? 'Activée' : 'Coupée';
+            bv.classList.toggle('on', !!state.settings.voiceEnabled);
+        }
+    }
+    const blocDebit = getEl('reglage-debit');
+    if (blocDebit) {
+        blocDebit.style.display = (voixDisponible() && state.settings.voiceEnabled) ? '' : 'none';
+    }
+    document.querySelectorAll('#set-voice-rate button').forEach(b =>
+        b.classList.toggle('on', Number(b.dataset.v) === Number(state.settings.voiceRate)));
+
     document.querySelectorAll('#set-font button').forEach(b =>
         b.classList.toggle('on', b.dataset.v === state.settings.fontSize));
 }
@@ -786,6 +843,8 @@ function getTutorialTemplate() {
                         <li>Entre deux chapitres, le temps passe : chaque pilier
                             perd du terrain. Rien ne reste acquis, tout demande
                             à être entretenu.</li>
+                        <li>Les scènes sont lues à voix haute. La lecture se règle,
+                            ou se coupe, dans les Paramètres.</li>
                         <li>À la fin de chaque chapitre, un bilan vous est présenté.</li>
                         <li>Au terme des dix chapitres, la balance rend son verdict :
                             ce n'est pas le pilier le plus haut qui compte, mais l'écart
@@ -944,7 +1003,7 @@ function updateHallUI() {
                     <span>Vie n°${v.lifeNumber} — ${v.protagonist}</span>
                     <span class="hall-date">${v.date}</span>
                 </div>
-                <div class="hall-vie-titre">${v.endTitle}</div>
+                <div class="hall-vie-titre">${formatText(v.endTitle)}</div>
             </div>`).join('')}
     `;
 }
