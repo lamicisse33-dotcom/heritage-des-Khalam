@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>ÉQUILIBRE — L'Héritage des Khalam</title>
+  <meta name="description" content="Un simulateur de vie narratif : maintenez l'équilibre entre Spiritualité, Amour, Santé et Argent.">
+
+  <meta name="theme-color" content="#02050a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="L'Héritage">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" href="icon-192.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+
+  <!-- Préchargement des ressources du premier écran -->
+  <link rel="preload" as="image" href="home-background.webp">
+  <link rel="preload" as="image" href="official-game-emblem.webp">
+  <!-- Ces deux chemins doublent VISUELS (config.js) : le préchargement doit
+       figurer dans le HTML, avant tout module. À mettre à jour ensemble. -->
+
+  <style>
+    /* Styles critiques : évitent un flash blanc avant le chargement de la feuille. */
+    html, body, #game-container { width: 100%; height: 100%; margin: 0; padding: 0; background: #02050a; overflow: hidden; color: #fff; }
+    body, #game-container { height: 100dvh; }
+    body {
+      touch-action: manipulation;
+      font-family: 'Montserrat', sans-serif;
+      -webkit-overflow-scrolling: touch;
+      -webkit-tap-highlight-color: transparent;
+    }
+    img { -webkit-user-drag: none; user-select: none; }
+  </style>
+</head>
+<body class="text-md">
+  <div id="game-container">
+    <!-- Couches d'atmosphère -->
+    <div class="mist-layer"></div>
+    <div class="mist-layer alt"></div>
+    <div class="menu-halo"></div>
+    <div class="particles-container" id="particles"></div>
+
+    <!-- Les écrans sont injectés ici par ui.js -->
+    <div id="screen-container"></div>
+
+    <!-- Le son ne peut démarrer qu'après un geste de l'utilisateur -->
+    <div id="audio-prompt" class="overlay">
+      <div class="prompt-box">
+        <h2>ÉQUILIBRE</h2>
+        <p class="prompt-sous">L'Héritage des Khalam</p>
+        <p>Touchez pour commencer l'expérience</p>
+        <button id="start-audio-btn" class="primary-btn">Commencer</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
