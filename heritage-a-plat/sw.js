@@ -11,7 +11,7 @@
  * VERSION doit être incrémentée à chaque livraison, en même temps que
  * BUILD_TAG dans main.js : c'est ce changement qui purge l'ancien cache.
  */
-const VERSION = 'heritage-khalam-v3.4.0';
+const VERSION = 'heritage-khalam-v3.6.0';
 const CACHE = 'khalam-' + VERSION;
 
 const A_PRECHARGER = [
@@ -43,12 +43,6 @@ const A_PRECHARGER = [
   "decor-quartier.webp",
   "decor-restaurant.webp",
   "decor-village.webp",
-  "didi-p1-bouche.webp",
-  "didi-p3-bouche-a.webp",
-  "didi-p3-bouche-e.webp",
-  "didi-p3-bouche-i.webp",
-  "didi-p3-bouche-m.webp",
-  "didi-p3-bouche-o.webp",
   "didi-palier-1.webp",
   "didi-palier-2.webp",
   "didi-palier-3.webp",

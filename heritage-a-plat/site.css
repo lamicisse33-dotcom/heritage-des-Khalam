@@ -1538,18 +1538,6 @@ input, select {
   display: block;
 }
 
-/* Pastille de bouche superposée. Ses bords ont été adoucis à la génération :
-   posée sur la bouche fermée, le raccord est invisible. Elle n'apparaît que
-   le temps d'un mot prononcé. */
-.perso-bouche {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 55ms linear;
-}
-
-.perso-bouche.ouverte { opacity: 1; }
-
 .perso-scene {
   position: absolute;
   bottom: -2%;

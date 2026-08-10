@@ -8,7 +8,7 @@ import { lire, stopper, basculerVoix, voixDisponible, enLecture, auChangement } 
 import { initAnimation, reagir, teinteDuChoix } from './anim.js';
 import { PILIERS, NIVEAUX, libelleDe, largeurJauge, niveauDe, nomDuPilier,
          CHIFFRES_VISIBLES } from './pillars.js';
-import { JEU, VISUELS, paliterDe, boucheDe } from './config.js';
+import { JEU, VISUELS, paliterDe } from './config.js';
 
 /**
  * UI Constants & State
@@ -518,7 +518,6 @@ export function updateCurrentEventUI() {
     // le joueur voit sa vie changer sans qu'aucun texte le lui dise.
     const enPied = paliterDe(state.user.protagonist, state.progress.chapterIndex,
                              state.progress.stats);
-    const bouche = enPied ? boucheDe(enPied) : null;
 
     container.innerHTML = `
         <div class="dilemma-image-container">
@@ -526,9 +525,6 @@ export function updateCurrentEventUI() {
             ${enPied ? `
             <div id="perso-scene" class="perso-scene">
                 <img class="perso-corps" src="${enPied}" alt="">
-                ${bouche ? bouche.visemes.map((v, n) => `
-                <img class="perso-bouche" data-viseme="${n}" src="${v}" alt=""
-                     style="left:${bouche.gauche}%;top:${bouche.haut}%;width:${bouche.largeur}%;height:${bouche.hauteur}%">`).join('') : ''}
             </div>` : ''}
         </div>
         <div class="dilemma-content">

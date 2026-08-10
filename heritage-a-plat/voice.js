@@ -30,8 +30,27 @@ const ATTENUATION = 0.3;
 /** Volume nominal de la musique, mémorisé avant atténuation. */
 let volumeMusique = 0.3;
 
-/** Voix française retenue, choisie une fois pour toutes. */
-let voixFr = null;
+/**
+ * Voix retenues, une par genre.
+ * Didi est une femme, Mila un homme : leur faire partager la même voix de
+ * synthèse casse l'incarnation dès la première phrase.
+ */
+let voixFeminine = null;
+let voixMasculine = null;
+let voixNeutre = null;
+
+/**
+ * Noms de voix françaises connus, par genre.
+ * L'API n'expose aucune information de genre : il faut donc reconnaître les
+ * voix par leur nom. La liste couvre iOS, macOS, Android et les principaux
+ * navigateurs de bureau ; tout ce qui n'y figure pas passe par une heuristique
+ * puis, en dernier recours, par la première voix française disponible.
+ */
+const VOIX_FEMININES = ['amélie','amelie','audrey','aurelie','aurélie','marie','virginie',
+    'chantal','céline','celine','julie','léa','lea','flore','sandy',
+    'microsoft hortense','hortense','microsoft julie','siri female','female'];
+const VOIX_MASCULINES = ['thomas','nicolas','daniel','paul','henri','mathieu','rémy','remy',
+    'microsoft paul','siri male','male'];
 
 /** Vrai une fois qu'un geste utilisateur a débloqué la synthèse. */
 let debloquee = false;
@@ -61,7 +80,45 @@ function choisirVoix() {
     const fr = voix.filter(v => (v.lang || '').toLowerCase().startsWith('fr'));
     if (!fr.length) return;
 
-    voixFr = fr.find(v => v.localService) || fr[0];
+    // Les voix installées localement démarrent plus vite et fonctionnent hors
+    // ligne : on les préfère à qualité de genre égale.
+    const parPreference = fr.slice().sort((a, b) =>
+        (b.localService ? 1 : 0) - (a.localService ? 1 : 0));
+
+    const correspond = (v, liste) => {
+        const n = (v.name || '').toLowerCase();
+        return liste.some(m => n.includes(m));
+    };
+
+    voixFeminine  = parPreference.find(v => correspond(v, VOIX_FEMININES)) || null;
+    voixMasculine = parPreference.find(v => correspond(v, VOIX_MASCULINES)) || null;
+    voixNeutre    = parPreference[0] || null;
+
+    // Certains systèmes ne nomment pas leurs voix de façon reconnaissable —
+    // « français (France) » ne dit rien du genre. On ne devine pas : les deux
+    // personnages partagent alors la même voix, et c'est la hauteur qui les
+    // distingue au moment de l'énoncé.
+    if (!voixFeminine) voixFeminine = voixNeutre;
+    if (!voixMasculine) voixMasculine = voixNeutre;
+}
+
+/**
+ * Voix correspondant au protagoniste joué.
+ * @returns {{voix: SpeechSynthesisVoice|null, hauteur: number}}
+ */
+function voixDuPersonnage() {
+    // Mila est le personnage masculin, Didi le personnage féminin.
+    const estHomme = state.user.protagonist === 'Mila';
+    const voix = estHomme ? voixMasculine : voixFeminine;
+
+    // Si l'appareil n'offre qu'une seule voix française, on écarte les deux
+    // personnages par la hauteur : imparfait, mais préférable à deux voix
+    // rigoureusement identiques.
+    const unique = voixFeminine === voixMasculine;
+    let hauteur = 1.0;
+    if (unique) hauteur = estHomme ? 0.82 : 1.16;
+
+    return { voix, hauteur };
 }
 
 if (supportee) {
@@ -122,11 +179,13 @@ export function lire(texte, options = {}) {
 
     stopper();
 
+    const perso = voixDuPersonnage();
+
     const e = new SpeechSynthesisUtterance(contenu);
     e.lang = 'fr-FR';
-    if (voixFr) e.voice = voixFr;
+    if (perso.voix) e.voice = perso.voix;
     e.rate = options.taux ?? state.settings.voiceRate ?? 0.95;
-    e.pitch = options.hauteur ?? 1.0;
+    e.pitch = options.hauteur ?? perso.hauteur;
     e.volume = 1.0;
 
     // Atténuation de la musique pendant la lecture.

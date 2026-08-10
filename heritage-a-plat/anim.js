@@ -34,15 +34,7 @@ const CIBLES = ['hud-player-portrait', 'chapter-intro-portrait-img', 'perso-scen
 /** Décroissance de l'impulsion de parole, en millisecondes. */
 const RETOMBEE = 170;
 
-/**
- * Durée d'ouverture de la bouche sur un mot.
- * Plus courte que la retombée du corps : une bouche qui reste ouverte trop
- * longtemps donne un air hébété.
- */
-const OUVERTURE = 130;
-
 let minuterieRetombee = null;
-let minuterieBouche = null;
 
 /**
  * Les animations sont-elles souhaitées ?
@@ -72,43 +64,9 @@ function parle(actif) {
     if (!actif) {
         portraits().forEach(el => el.style.removeProperty('--voix'));
         if (minuterieRetombee) { clearTimeout(minuterieRetombee); minuterieRetombee = null; }
-        fermerBouche();
     }
 }
 
-/** @returns {HTMLElement[]} les positions de bouche disponibles pour ce palier */
-function bouches() {
-    return Array.from(document.querySelectorAll('.perso-bouche'));
-}
-
-function fermerBouche() {
-    bouches().forEach(b => b.classList.remove('ouverte'));
-    if (minuterieBouche) { clearTimeout(minuterieBouche); minuterieBouche = null; }
-}
-
-/** Dernière position jouée, pour ne jamais répéter la même deux fois de suite. */
-let dernierViseme = -1;
-
-/**
- * Ouvre la bouche le temps d'un mot.
- * La durée varie un peu : une alternance parfaitement régulière ressemble à
- * un automate, pas à quelqu'un qui parle.
- */
-function articuler() {
-    const liste = bouches();
-    if (!liste.length) return;
-
-    // On tire une position au hasard, en évitant de répéter la précédente :
-    // deux fois la même bouche d'affilée se voit et casse l'illusion.
-    let n = Math.floor(Math.random() * liste.length);
-    if (liste.length > 1 && n === dernierViseme) n = (n + 1) % liste.length;
-    dernierViseme = n;
-
-    liste.forEach((b, k) => b.classList.toggle('ouverte', k === n));
-
-    if (minuterieBouche) clearTimeout(minuterieBouche);
-    minuterieBouche = setTimeout(fermerBouche, OUVERTURE + Math.random() * 90);
-}
 
 /**
  * Impulsion sur un mot prononcé.
@@ -117,7 +75,6 @@ function articuler() {
  */
 function surUnMot() {
     if (!animationsActives()) return;
-    articuler();
     const intensite = (0.7 + Math.random() * 0.5).toFixed(2);
     portraits().forEach(el => el.style.setProperty('--voix', intensite));
 

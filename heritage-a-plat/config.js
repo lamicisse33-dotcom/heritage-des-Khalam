@@ -43,7 +43,7 @@ export const JEU = {
     CLE_SAUVEGARDE: 'khalam_heritage_save',
 
     /** Version du build. À reporter dans VERSION (sw.js) à chaque livraison. */
-    BUILD_TAG: 'v3.4.0'
+    BUILD_TAG: 'v3.6.0'
 };
 
 /**
@@ -140,50 +140,6 @@ export const PALIERS = {
  *
  * Un personnage sans tenue d'état garde simplement son palier.
  */
-/**
- * Bouches ouvertes, pour l'animation de la parole.
- * ---------------------------------------------------------------------------
- * Plutôt que d'alterner deux illustrations entières — ce qui ferait vibrer
- * tout le corps au moindre écart de génération —, on superpose une petite
- * pastille sur la bouche fermée. Le reste du personnage est alors garanti
- * strictement immobile, au pixel près.
- *
- * Les coordonnées sont exprimées en pourcentage de l'image du personnage :
- * elles suivent donc n'importe quelle taille d'écran.
- *
- * La clé est le fichier du corps. Un palier sans entrée ici ne parle pas
- * visuellement : le jeu se contente alors des autres animations.
- * ---------------------------------------------------------------------------
- */
-export const BOUCHES = {
-    // Palier 1 : une seule bouche ouverte disponible.
-    'didi-palier-1.webp': {
-        gauche: 40.000, haut: 12.762, largeur: 13.800, hauteur: 4.857,
-        visemes: ['didi-p1-bouche.webp']
-    },
-    // Palier 3 : cinq positions de bouche. Le jeu tire au sort à chaque mot,
-    // ce qui donne une articulation variée plutôt qu'un clignotement binaire.
-    'didi-palier-3.webp': {
-        gauche: 35.800, haut: 11.714, largeur: 15.800, hauteur: 4.286,
-        visemes: [
-            'didi-p3-bouche-a.webp',   // voyelle ouverte
-            'didi-p3-bouche-i.webp',   // sourire, dents visibles
-            'didi-p3-bouche-e.webp',   // entrouverte
-            'didi-p3-bouche-m.webp',   // lèvres jointes
-            'didi-p3-bouche-o.webp'    // lèvres arrondies
-        ]
-    }
-};
-
-/**
- * Pastille de bouche associée à une illustration de corps.
- * @param {string} corps nom de fichier du personnage en pied
- * @returns {object|null}
- */
-export function boucheDe(corps) {
-    return BOUCHES[corps] || null;
-}
-
 export const TENUES_ETAT = {
     Mila: { sport: 'mila-sport.webp' },
     Didi: {}
