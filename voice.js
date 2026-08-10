@@ -135,14 +135,101 @@ export function lire(texte, options = {}) {
         audio.bgm.volume = volumeMusique * ATTENUATION;
     }
 
-    e.onend = rendreLeSon;
-    e.onerror = rendreLeSon;
+    // Rythme réel : un battement par mot prononcé.
+    let boundaryVu = false;
+    e.onboundary = (ev) => {
+        if (ev.name === 'word' || ev.charLength) {
+            boundaryVu = true;
+            arreterSecours();
+            battre();
+        }
+    };
+
+    const finir = () => { arreterSecours(); rendreLeSon(); signaler(false); };
+    e.onend = finir;
+    e.onerror = finir;
 
     try {
         window.speechSynthesis.speak(e);
+        signaler(true);
+        battre();
+
+        // Rythme de secours si le moteur n'émet pas `boundary` : cadence
+        // moyenne d'un lecteur français, ajustée au débit choisi.
+        arreterSecours();
+        const intervalle = Math.round(340 / (e.rate || 1));
+        rythmeSecours = setInterval(() => {
+            if (boundaryVu || !window.speechSynthesis.speaking) { arreterSecours(); return; }
+            battre();
+        }, intervalle);
     } catch (err) {
-        rendreLeSon();
+        finir();
     }
+}
+
+/**
+ * Une lecture est-elle en cours ?
+ * @returns {boolean}
+ */
+export function enLecture() {
+    return supportee && (window.speechSynthesis.speaking || window.speechSynthesis.pending);
+}
+
+/**
+ * Enregistre une fonction appelée à chaque début et fin de lecture, pour que
+ * l'interface puisse refléter l'état du bouton de lecture.
+ * @param {(actif:boolean)=>void} f
+ */
+/**
+ * Abonnés aux changements d'état de la lecture.
+ * Une liste, et non un unique abonné : le bouton de lecture et l'animation des
+ * personnages écoutent tous deux, et le second ne doit pas chasser le premier.
+ */
+const auxChangements = [];
+
+/**
+ * Enregistre une fonction appelée au début et à la fin de chaque lecture.
+ * @param {(actif:boolean)=>void} f
+ */
+export function auChangement(f) {
+    if (typeof f === 'function' && !auxChangements.includes(f)) auxChangements.push(f);
+}
+
+/** Notifie tous les abonnés d'un changement d'état. */
+function signaler(actif) {
+    auxChangements.forEach(f => {
+        try { f(actif); } catch (e) { /* un abonné défaillant n'arrête pas les autres */ }
+    });
+}
+
+/* --------------------------------------------------------------------------
+   Rythme de la parole
+   --------------------------------------------------------------------------
+   Pour animer un personnage qui parle, il faut savoir *quand* il parle, pas
+   seulement qu'il parle. L'API émet un événement `boundary` à chaque mot, ce
+   qui donne le rythme exact de la voix.
+
+   Tous les moteurs ne l'émettent pas — c'est notamment inégal sur Android. On
+   prévoit donc un rythme de secours, calculé à partir du débit choisi, pour
+   que l'animation existe partout.
+   -------------------------------------------------------------------------- */
+
+/** Abonnés au rythme de la parole. */
+const auxMots = [];
+
+/**
+ * Enregistre une fonction appelée à chaque mot prononcé.
+ * @param {() => void} f
+ */
+export function auMot(f) { auxMots.push(f); }
+
+function battre() { auxMots.forEach(f => f()); }
+
+/** Minuterie du rythme de secours. */
+let rythmeSecours = null;
+
+function arreterSecours() {
+    if (rythmeSecours) { clearInterval(rythmeSecours); rythmeSecours = null; }
 }
 
 /**
@@ -156,7 +243,9 @@ export function stopper() {
     } catch (e) {
         // sans conséquence
     }
+    arreterSecours();
     rendreLeSon();
+    signaler(false);
 }
 
 /**

@@ -60,6 +60,64 @@
     </div>
   </div>
 
+  <!-- Filet de diagnostic.
+       Si un fichier .js manque ou refuse de se charger, les modules ne
+       s'exécutent pas et la page reste figée sur l'écran d'entrée, sans
+       aucun message. Ce script, chargé avant eux, affiche alors ce qui a
+       échoué — beaucoup plus utile qu'un bouton qui ne répond pas. -->
+  <script>
+  (function () {
+    var signale = false;
+
+    function afficher(message, detail) {
+      if (signale) return;
+      signale = true;
+      var d = document.createElement('div');
+      d.setAttribute('style',
+        'position:fixed;inset:0;z-index:9999;background:#02050a;color:#f8f9fa;' +
+        'font-family:-apple-system,system-ui,sans-serif;padding:26px;overflow:auto;' +
+        'display:flex;flex-direction:column;justify-content:center');
+      d.innerHTML =
+        '<div style="color:#D4AF37;letter-spacing:.2em;font-size:.7rem;margin-bottom:14px">' +
+        'LE JEU N\'A PAS PU DÉMARRER</div>' +
+        '<div style="font-size:.9rem;line-height:1.6;margin-bottom:18px">' + message + '</div>' +
+        '<div style="font-size:.72rem;line-height:1.6;opacity:.75;font-family:ui-monospace,monospace;' +
+        'background:rgba(255,255,255,.06);padding:12px;border-radius:8px;word-break:break-all">' +
+        detail + '</div>' +
+        '<div style="font-size:.72rem;line-height:1.7;opacity:.6;margin-top:18px">' +
+        'Vérifiez que les 50 fichiers du jeu sont bien déposés, puis rechargez ' +
+        'la page en vidant le cache.</div>';
+      document.body.appendChild(d);
+    }
+
+    // Un fichier introuvable : c'est la cause la plus fréquente.
+    window.addEventListener('error', function (e) {
+      var c = e.target;
+      if (c && (c.tagName === 'SCRIPT' || c.tagName === 'LINK')) {
+        afficher('Un fichier du jeu est introuvable ou n\'a pas pu être chargé.',
+                 c.src || c.href);
+      } else if (e.message) {
+        afficher('Une erreur est survenue au démarrage.', e.message);
+      }
+    }, true);
+
+    window.addEventListener('unhandledrejection', function (e) {
+      afficher('Une erreur est survenue au démarrage.',
+               (e.reason && (e.reason.message || e.reason)) || 'cause inconnue');
+    });
+
+    // Si rien ne s'est initialisé au bout de six secondes, les modules n'ont
+    // pas démarré : on le dit plutôt que de laisser l'écran figé.
+    setTimeout(function () {
+      if (!window.__JEU_PRET__) {
+        afficher('Les modules du jeu ne se sont pas chargés.',
+                 'Fichiers attendus : main.js, config.js, pillars.js, state.js, ' +
+                 'story.js, audio.js, voice.js, anim.js, ui.js, site.css');
+      }
+    }, 6000);
+  })();
+  </script>
+
   <script type="module" src="main.js"></script>
 </body>
 </html>

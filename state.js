@@ -65,7 +65,7 @@ export const state = {
         characters: {
             partner: {
                 id: 'partner',
-                name: 'Nia', // Based on characters.md
+                name: '', // renseigné au choix du protagoniste : c'est l'autre personnage
                 role: 'Le Partenaire',
                 bio: 'Votre pilier émotionnel, représentant le foyer et la vérité du cœur.',
                 relationship: 50,
@@ -253,7 +253,7 @@ export function resetForNewLife() {
         unlockedIllustrations: [],
         unlockedLore: [],
         characters: {
-            partner: { id: 'partner', name: 'Nia', role: 'Le Partenaire', relationship: 50, trust: 50, complicity: 50, respect: 50, influence: 50, disagreements: 0, communication: 50, commitment: 50, memories: [] },
+            partner: { id: 'partner', name: '', role: 'Le Partenaire', relationship: 50, trust: 50, complicity: 50, respect: 50, influence: 50, disagreements: 0, communication: 50, commitment: 50, memories: [] },
             child: { id: 'child', role: 'L\'Enfant', relationship: 50, age: 0, active: false, memories: [] },
             friend: { id: 'friend', name: 'Kofi', role: 'L\'Ami Proche', relationship: 60, age: 26, memories: [] },
             manager: { id: 'manager', name: 'Mr. Mensah', role: 'Le Manager', relationship: 40, age: 48, memories: [] },

@@ -61,6 +61,8 @@ async function bootstrap() {
     window.addEventListener('resize', handleResize);
     handleResize();
 
+    // Signale au filet de diagnostic que tout s'est bien chargé.
+    window.__JEU_PRET__ = true;
     console.log(`${JEU.TITRE_COMPLET} — build ${BUILD_TAG}`);
 }
 
