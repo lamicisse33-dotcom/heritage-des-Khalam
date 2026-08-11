@@ -1,5 +1,5 @@
 # ÉQUILIBRE — L'Héritage des Khalam
-## Document de reprise · v3.10.0
+## Document de reprise · v3.11.0
 
 Ce fichier permet de reprendre le développement dans une nouvelle conversation sans rien perdre. **À lire en premier.**
 
@@ -22,6 +22,8 @@ Quatre piliers : **Spiritualité, Amour, Santé, Argent**. Le jeu ne se gagne pa
 ## 2. Contraintes de travail — importantes
 
 **Tous les fichiers sont à plat**, sans aucun dossier. Ce n'est pas un choix esthétique : Lamine déploie à la main depuis l'interface web de GitHub, et le glisser-déposer de dossiers échoue sur son navigateur. Ne jamais réintroduire d'arborescence.
+
+**Bandeau de mise à jour** (v3.11.0) — le jeu interroge le `BUILD_TAG` publié et prévient le joueur quand une version plus récente existe, avec un bouton qui purge les caches et recharge. On ne se fie pas à `registration.waiting` : `skipWaiting()` est appelé dès l'installation, donc aucun worker ne reste en attente. `config.js` est le seul fichier servi **toujours** depuis le réseau — en cache, il annoncerait éternellement l'ancienne version.
 
 **À chaque livraison, incrémenter ensemble** `BUILD_TAG` (dans `config.js`) et `VERSION` (dans `sw.js`). Sans cela le service worker resert l'ancienne version depuis son cache, et Lamine croit que le dépôt a échoué.
 

@@ -43,7 +43,7 @@ export const JEU = {
     CLE_SAUVEGARDE: 'khalam_heritage_save',
 
     /** Version du build. À reporter dans VERSION (sw.js) à chaque livraison. */
-    BUILD_TAG: 'v3.10.0'
+    BUILD_TAG: 'v3.11.0'
 };
 
 /**

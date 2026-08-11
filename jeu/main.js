@@ -118,6 +118,81 @@ function handleResize() {
 }
 
 /**
+ * Détection d'une nouvelle version.
+ * ---------------------------------------------------------------------------
+ * Le service worker sert les ressources depuis son cache : une fois le jeu
+ * ouvert, rien ne signale au joueur qu'une version plus récente a été déposée.
+ * Il continue de jouer l'ancienne sans le savoir.
+ *
+ * On ne se fie pas à `registration.waiting` : `skipWaiting()` est appelé dès
+ * l'installation, si bien qu'aucun worker ne reste en attente. On compare donc
+ * directement le `BUILD_TAG` du fichier en ligne à celui qui tourne.
+ */
+const DELAI_VERIFICATION = 60 * 1000;
+
+/**
+ * Va chercher le BUILD_TAG publié, en contournant tous les caches.
+ * @returns {Promise<string|null>}
+ */
+async function tagPublie() {
+    try {
+        const r = await fetch(`config.js?_=${Date.now()}`, { cache: 'no-store' });
+        if (!r.ok) return null;
+        const texte = await r.text();
+        const m = texte.match(/BUILD_TAG:\s*'([^']+)'/);
+        return m ? m[1] : null;
+    } catch (e) {
+        return null;   // hors ligne : ce n'est pas une erreur, juste rien à dire
+    }
+}
+
+/** Affiche le bandeau de mise à jour. Une seule fois par session. */
+function annoncerMiseAJour(tag) {
+    if (document.getElementById('maj-bandeau')) return;
+
+    const bandeau = document.createElement('div');
+    bandeau.id = 'maj-bandeau';
+    bandeau.setAttribute('role', 'status');
+    bandeau.innerHTML = `
+        <div class="maj-texte">
+            <strong>Une nouvelle version est disponible</strong>
+            <span>${BUILD_TAG} → ${tag}</span>
+        </div>
+        <button id="maj-btn" class="choice-btn"><span>Mettre à jour</span></button>
+        <button id="maj-plus-tard" class="maj-fermer" aria-label="Plus tard">×</button>
+    `;
+    document.body.appendChild(bandeau);
+    requestAnimationFrame(() => bandeau.classList.add('visible'));
+
+    document.getElementById('maj-btn').addEventListener('click', async () => {
+        bandeau.querySelector('.maj-texte strong').textContent = 'Mise à jour…';
+        // La partie en cours est sauvée avant tout : un rechargement ne doit
+        // jamais coûter une progression.
+        try { saveGame(); } catch (e) { /* rien à sauver */ }
+        try {
+            const cles = await caches.keys();
+            await Promise.all(cles.map((k) => caches.delete(k)));
+            const reg = await navigator.serviceWorker.getRegistration();
+            if (reg) await reg.unregister();
+        } catch (e) {
+            // Sans cache à purger, le rechargement suffit.
+        }
+        location.reload();
+    });
+
+    document.getElementById('maj-plus-tard').addEventListener('click', () => {
+        bandeau.classList.remove('visible');
+        setTimeout(() => bandeau.remove(), 400);
+    });
+}
+
+/** Compare la version publiée à celle qui tourne, et prévient si elles diffèrent. */
+async function verifierMiseAJour() {
+    const tag = await tagPublie();
+    if (tag && tag !== BUILD_TAG) annoncerMiseAJour(tag);
+}
+
+/**
  * Service worker : mise en cache de la coquille et des ressources, pour un
  * démarrage rapide et un fonctionnement hors ligne. Enregistré après `load`
  * afin de ne pas concurrencer le premier rendu.
@@ -129,6 +204,16 @@ if ('serviceWorker' in navigator) {
         });
     });
 }
+
+// Une vérification au démarrage, puis à chaque retour sur l'onglet : c'est là
+// que le joueur revient après avoir laissé le jeu ouvert des heures.
+setTimeout(verifierMiseAJour, 3000);
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        clearTimeout(window.__majMinuterie);
+        window.__majMinuterie = setTimeout(verifierMiseAJour, DELAI_VERIFICATION);
+    }
+});
 
 // Start the app
 bootstrap();

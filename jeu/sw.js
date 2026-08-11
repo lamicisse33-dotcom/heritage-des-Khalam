@@ -11,7 +11,7 @@
  * VERSION doit être incrémentée à chaque livraison, en même temps que
  * BUILD_TAG dans main.js : c'est ce changement qui purge l'ancien cache.
  */
-const VERSION = 'heritage-khalam-v3.10.0';
+const VERSION = 'heritage-khalam-v3.11.0';
 const CACHE = 'khalam-' + VERSION;
 
 const A_PRECHARGER = [
@@ -96,6 +96,16 @@ self.addEventListener('activate', (e) => {
   );
 });
 
+/**
+ * `config.js` porte le BUILD_TAG que le jeu interroge pour détecter une mise à
+ * jour. Servi depuis le cache, il annoncerait éternellement l'ancienne version.
+ * Il est donc toujours pris sur le réseau, sans repli.
+ */
+function toujoursLeReseau(req) {
+  return fetch(req, { cache: 'no-store' })
+    .catch(() => caches.match(req));
+}
+
 /** Le code doit refléter le dernier déploiement : réseau d'abord. */
 function reseauDAbord(req) {
   return fetch(req)
@@ -121,6 +131,14 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET') return;
 
   const url = new URL(req.url);
+
+  // Le sondage de version doit toujours voir le fichier publié, jamais une
+  // copie en cache — sinon le bandeau de mise à jour ne s'affiche jamais.
+  if (url.pathname.endsWith('config.js')) {
+    e.respondWith(toujoursLeReseau(req));
+    return;
+  }
+
   const estCode = req.mode === 'navigate'
     || (req.headers.get('accept') || '').includes('text/html')
     || url.pathname.endsWith('.js');
