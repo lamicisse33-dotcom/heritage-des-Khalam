@@ -1538,18 +1538,6 @@ input, select {
   display: block;
 }
 
-/* Pastille de bouche superposée. Ses bords ont été adoucis à la génération :
-   posée sur la bouche fermée, le raccord est invisible. Elle n'apparaît que
-   le temps d'un mot prononcé. */
-.perso-bouche {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 55ms linear;
-}
-
-.perso-bouche.ouverte { opacity: 1; }
-
 .perso-scene {
   position: absolute;
   bottom: -2%;
@@ -1635,4 +1623,360 @@ input, select {
   letter-spacing: 0.06em;
   margin-top: 2px;
   opacity: 0.85;
+}
+
+/* ==========================================================================
+   CINÉMATIQUE
+   --------------------------------------------------------------------------
+   Une suite de plans, chacun avec son mouvement de caméra et son texte.
+   Le mouvement vient de `transform` sur le décor : c'est le processeur
+   graphique qui compose, donc rien ne rame sur un téléphone modeste.
+
+   Les plans durent longtemps volontairement — on lit, on regarde. Mais un
+   appui passe au suivant : personne ne doit être prisonnier d'une séquence.
+   ========================================================================== */
+
+.cine-scene {
+  position: relative;
+  width: 100%;
+  animation: cineEntree 0.9s ease-out both;
+}
+
+.cine-scene.sortie { animation: cineSortie 0.5s ease-in both; }
+
+@keyframes cineEntree { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cineSortie { from { opacity: 1; } to { opacity: 0; } }
+
+.cine-plan {
+  position: relative;
+  width: 100%;
+  height: 46vh;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--gold-border);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+}
+
+.cine-decor {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform;
+}
+
+/* Mouvements de caméra. Lents et de faible amplitude : au-delà, l'œil suit
+   le mouvement au lieu de lire le plan. */
+.cine-plan[data-camera="avance"] .cine-decor { animation: camAvance 11s ease-out both; }
+.cine-plan[data-camera="recule"] .cine-decor { animation: camRecule 11s ease-out both; }
+.cine-plan[data-camera="gauche"] .cine-decor { animation: camGauche 13s ease-in-out both; }
+.cine-plan[data-camera="droite"] .cine-decor { animation: camDroite 13s ease-in-out both; }
+.cine-plan[data-camera="fixe"]   .cine-decor { transform: scale(1.04); }
+/* Travelling avant marqué, pour la marche. Amplitude bien plus forte que
+   `avance` : c'est le défilement du décor qui donne la sensation d'avancer,
+   deux poses alternées sur place n'y suffisent pas. Au-delà de 1.42 le décor
+   commence à manquer de définition — 1536 px affichés à 2180. */
+.cine-plan[data-camera="marche"] .cine-decor { animation: camMarche 8.4s linear both; }
+
+@keyframes camMarche { from { transform: scale(1.06) translate(4%, 1.5%); }
+                       to   { transform: scale(1.42) translate(-3%, -2%); } }
+
+@keyframes camAvance { from { transform: scale(1.02); } to { transform: scale(1.16); } }
+@keyframes camRecule { from { transform: scale(1.18); } to { transform: scale(1.03); } }
+@keyframes camGauche { from { transform: scale(1.12) translateX(3.5%); }
+                       to   { transform: scale(1.12) translateX(-3.5%); } }
+@keyframes camDroite { from { transform: scale(1.12) translateX(-3.5%); }
+                       to   { transform: scale(1.12) translateX(3.5%); } }
+
+/* Personnages posés dans le plan. Ils entrent avec un léger décalage, pour
+   que le décor s'installe avant eux. */
+.cine-perso {
+  position: absolute;
+  bottom: -1%;
+  height: 92%;
+  width: auto;
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.8));
+  animation: cinePerso 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both,
+             cineRespire 6s ease-in-out 1.5s infinite;
+  will-change: transform;
+}
+
+.cine-perso.gauche      { left: 8%; }
+.cine-perso.droite      { right: 8%; }
+.cine-perso.centre      { left: 50%; margin-left: -14%; }
+/* Au loin sur la corniche : plus petits, plus écartés. */
+.cine-perso.gauche-loin { left: 30%; height: 62%; }
+.cine-perso.droite-loin { left: 46%; height: 62%; }
+
+/* Le couple qui marche : centré, et il grandit très légèrement pendant le plan.
+   La caméra avance plus vite qu'eux — sans cet écart, ils sembleraient collés
+   au décor et le travelling ne servirait à rien. */
+.cine-perso.couple {
+  left: 50%;
+  height: 60%;
+  transform-origin: 50% 100%;
+  animation: cinePerso 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both,
+             coupleAvance 8.4s linear both;
+}
+
+@keyframes coupleAvance {
+  from { transform: translateX(-50%) scale(1); }
+  to   { transform: translateX(-50%) scale(1.06); }
+}
+
+/* Le rebond du pas. Le corps monte et redescend à chaque enjambée : c'est ce
+   détail qui sépare une image qui glisse de quelqu'un qui marche. Le cycle
+   est calé sur les 750 ms d'une pose. */
+.cine-marche.couple img { animation-name: pasImpair, pasRebond; }
+.cine-marche.couple img + img { animation-name: pasPair, pasRebond; }
+.cine-marche.couple img,
+.cine-marche.couple img + img {
+  animation-duration: 1.5s, 0.75s;
+  animation-timing-function: step-end, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+}
+
+@keyframes pasRebond {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-0.9%); }
+}
+
+/* Attablés. Mila à gauche, Didi à droite. */
+.cine-perso.assis-gauche { left: 9%;  bottom: 3%; height: 54%; }
+.cine-perso.assis-droite { right: 9%; bottom: 3%; height: 54%; }
+
+/* La nappe découpée, reposée par-dessus les convives. Ni ombre portée ni
+   respiration : ce n'est pas un personnage, c'est un morceau du décor. */
+.cine-perso.cine-avant {
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: none;
+  animation: cinePerso 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+}
+
+/* Marche. Deux poses empilées au même endroit ; on commute leur opacité.
+   750 ms par pose, soit un cycle de 1,5 s — cadence validée à l'œil. Les
+   images sont générées avec une boîte de recadrage commune : elles se
+   superposent au pixel près, sans dérive de taille ni de position.
+   La bascule est franche, pas fondue : c'est du dessin, pas de la vidéo. */
+.cine-marche {
+  display: block;
+  position: absolute;
+}
+
+.cine-marche img {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
+/* La seconde pose se superpose exactement à la première. */
+.cine-marche img + img {
+  position: absolute;
+  inset: 0;
+}
+
+.cine-marche img:first-child { animation: pasImpair 1.5s step-end infinite; }
+.cine-marche img + img       { animation: pasPair   1.5s step-end infinite; }
+
+@keyframes pasImpair { 0% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes pasPair   { 0% { opacity: 0; } 50% { opacity: 1; } }
+
+@keyframes cinePerso {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cineRespire {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-3px) scale(1.008); }
+}
+
+/* Voile bas : ancre les personnages et détache le texte du décor. */
+.cine-voile {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom,
+              rgba(2, 5, 10, 0.30) 0%,
+              rgba(2, 5, 10, 0) 35%,
+              rgba(2, 5, 10, 0) 60%,
+              rgba(2, 5, 10, 0.80) 100%);
+}
+
+.cine-texte {
+  font-size: 0.92rem;
+  line-height: 1.75;
+  padding: 20px 6px 4px;
+  margin: 0;
+  color: var(--white);
+  animation: cineTexte 1.1s ease-out 0.5s both;
+}
+
+@keyframes cineTexte {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cine-choix {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+  animation: cineTexte 1.1s ease-out 1.1s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cine-decor, .cine-perso, .cine-scene, .cine-texte, .cine-choix,
+  .cine-marche img {
+    animation: none !important;
+    transform: none !important;
+  }
+  /* Animations coupées : la marche se fige sur une seule pose, sinon les deux
+     images restent superposées et le personnage apparaît dédoublé. */
+  .cine-marche img + img { opacity: 0 !important; }
+}
+
+/* Pendant une cinématique, le conteneur de jeu laisse toute la place au
+   récit : pas de jauges, pas de boutons, seulement l'image et le texte. */
+#game-scroll-container.en-cinematique {
+  padding: 14px 14px 40px;
+}
+
+/* ==========================================================================
+   Conséquences différées — les échos
+   ========================================================================== */
+
+/* Le marqueur ne dit pas ce qui va tomber, seulement qu'il tombera quelque
+   chose. C'est tout l'objet du dispositif : le joueur doit savoir qu'il parie
+   sans pouvoir calculer le pari. */
+.marque-differe {
+    display: block;
+    margin-top: .35rem;
+    font-family: 'Cinzel', serif;
+    font-style: normal;
+    font-size: .62rem;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--gold-muted);
+    opacity: .62;
+}
+
+.choice-btn.choice-differe { border-left: 2px solid var(--gold-muted); }
+
+.summary-echos { margin: .5rem 0 1.25rem; }
+
+.summary-echo {
+    border-left: 2px solid var(--gold-muted);
+    padding: .55rem 0 .55rem .85rem;
+    margin-bottom: .85rem;
+}
+
+.summary-echo .echo-titre {
+    font-family: 'Cinzel', serif;
+    font-size: .72rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: .3rem;
+}
+
+.summary-echo p {
+    margin: 0;
+    font-size: .92rem;
+    line-height: 1.55;
+    opacity: .9;
+}
+
+/* ==========================================================================
+   BANDEAU DE MISE À JOUR
+   Le service worker sert depuis son cache : sans ce bandeau, le joueur ne
+   saurait jamais qu'une version plus récente existe. Posé en bas, au-dessus
+   de tout, il ne masque ni le texte de la scène ni les boutons de choix.
+   ========================================================================== */
+
+#maj-bandeau {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: linear-gradient(160deg, #14120c 0%, #0a0908 100%);
+  border: 1px solid var(--gold-border);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.75), 0 0 22px var(--gold-glow);
+  transform: translateY(140%);
+  opacity: 0;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease;
+}
+
+#maj-bandeau.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+#maj-bandeau .maj-texte {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#maj-bandeau .maj-texte strong {
+  color: var(--gold);
+  font-size: 0.98rem;
+  letter-spacing: 0.02em;
+}
+
+#maj-bandeau .maj-texte span {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+#maj-bandeau #maj-btn {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 10px 18px;
+  width: auto;
+}
+
+#maj-bandeau .maj-fermer {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+#maj-bandeau .maj-fermer:hover { color: var(--gold); }
+
+/* Étroit : le bouton passe sous le texte plutôt que de l'écraser. */
+@media (max-width: 430px) {
+  #maj-bandeau {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  #maj-bandeau .maj-texte { flex-basis: calc(100% - 44px); }
+  #maj-bandeau #maj-btn { flex-basis: 100%; text-align: center; }
+  #maj-bandeau .maj-fermer { order: 2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #maj-bandeau { transition: none; }
 }

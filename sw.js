@@ -11,7 +11,7 @@
  * VERSION doit être incrémentée à chaque livraison, en même temps que
  * BUILD_TAG dans main.js : c'est ce changement qui purge l'ancien cache.
  */
-const VERSION = 'heritage-khalam-v3.4.1';
+const VERSION = 'heritage-khalam-v3.11.0';
 const CACHE = 'khalam-' + VERSION;
 
 const A_PRECHARGER = [
@@ -28,6 +28,7 @@ const A_PRECHARGER = [
   "config.js",
   "voice.js",
   "anim.js",
+  "cinematique.js",
   "icon-192.png",
   "icon-512.png",
   "character-didi-avatar.webp",
@@ -43,25 +44,36 @@ const A_PRECHARGER = [
   "decor-quartier.webp",
   "decor-restaurant.webp",
   "decor-village.webp",
-  "didi-p1-bouche.webp",
-  "didi-p3-bouche-a.webp",
-  "didi-p3-bouche-e.webp",
-  "didi-p3-bouche-i.webp",
-  "didi-p3-bouche-m.webp",
-  "didi-p3-bouche-o.webp",
   "didi-palier-1.webp",
   "didi-palier-2.webp",
   "didi-palier-3.webp",
   "didi-palier-4.webp",
   "didi-palier-5.webp",
+  "didi-soiree.webp",
+  "didi-marche-1.webp",
+  "didi-marche-2.webp",
+  "didi-assise.webp",
   "home-background.webp",
   "mila-palier-1.webp",
   "mila-palier-2.webp",
   "mila-palier-3.webp",
   "mila-palier-4.webp",
   "mila-palier-5.webp",
+  "mila-soiree.webp",
+  "mila-marche-1.webp",
+  "mila-marche-2.webp",
+  "mila-assis.webp",
   "mila-sport.webp",
   "official-game-emblem.webp",
+  "scene-demande-1-hall.webp",
+  "scene-demande-2-corniche.webp",
+  "scene-demande-3-entree.webp",
+  "scene-demande-4-table.webp",
+  "decor-table-nappe.webp",
+  "couple-marche-1.webp",
+  "couple-marche-2.webp",
+  "scene-demande-5-ecrin.webp",
+  "scene-demande-6-aube.webp",
   "ambient-theme.mp3",
   "ui-click.mp3"
 ];
@@ -83,6 +95,16 @@ self.addEventListener('activate', (e) => {
       .then(() => self.clients.claim())
   );
 });
+
+/**
+ * `config.js` porte le BUILD_TAG que le jeu interroge pour détecter une mise à
+ * jour. Servi depuis le cache, il annoncerait éternellement l'ancienne version.
+ * Il est donc toujours pris sur le réseau, sans repli.
+ */
+function toujoursLeReseau(req) {
+  return fetch(req, { cache: 'no-store' })
+    .catch(() => caches.match(req));
+}
 
 /** Le code doit refléter le dernier déploiement : réseau d'abord. */
 function reseauDAbord(req) {
@@ -109,6 +131,14 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET') return;
 
   const url = new URL(req.url);
+
+  // Le sondage de version doit toujours voir le fichier publié, jamais une
+  // copie en cache — sinon le bandeau de mise à jour ne s'affiche jamais.
+  if (url.pathname.endsWith('config.js')) {
+    e.respondWith(toujoursLeReseau(req));
+    return;
+  }
+
   const estCode = req.mode === 'navigate'
     || (req.headers.get('accept') || '').includes('text/html')
     || url.pathname.endsWith('.js');

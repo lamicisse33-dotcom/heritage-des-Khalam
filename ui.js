@@ -2,13 +2,14 @@ import { state, checkSave, saveGame, recordLifeEnd, resetForNewLife, clearSave }
 import { STORY_DATA, ACHIEVEMENTS, getCurrentEvent, advanceStory, calculateBalance,
          checkAchievements, getReputationTags, evaluateLifePath,
          appliquerUsure, USURE_PAR_CHAPITRE, activerPersonnages,
-         EROSION_DES_LIENS } from './story.js';
+         EROSION_DES_LIENS, programmerEcho, resoudreEchos } from './story.js';
 import { toggleMusic, toggleSFX } from './audio.js';
 import { lire, stopper, basculerVoix, voixDisponible, enLecture, auChangement } from './voice.js';
 import { initAnimation, reagir, teinteDuChoix } from './anim.js';
+import { jouerCinematique, sequenceDeLaDemande } from './cinematique.js';
 import { PILIERS, NIVEAUX, libelleDe, largeurJauge, niveauDe, nomDuPilier,
          CHIFFRES_VISIBLES } from './pillars.js';
-import { JEU, VISUELS, paliterDe, boucheDe } from './config.js';
+import { JEU, VISUELS, paliterDe } from './config.js';
 
 /**
  * UI Constants & State
@@ -340,15 +341,50 @@ async function handleContinuePathClick() {
     }
 
     if (state.progress.chapterIndex !== oldCh) {
+        // Les paris arrivés à échéance se règlent d'abord : le joueur doit voir
+        // ce que son passé lui rend avant de voir ce que le temps lui prend.
+        // Au dernier chapitre on vide la file — rien ne doit rester en l'air
+        // au moment du verdict.
+        const dernier = state.progress.chapterIndex >= STORY_DATA.chapters.length - 1;
+        const echos = resoudreEchos(dernier);
+
         // Le temps passe entre deux chapitres : chaque pilier perd du terrain.
         // Appliqué avant le bilan, pour que le joueur en voie le coût.
         appliquerUsure();
         calculateBalance();
         saveGame();
-        showChapterSummary(oldCh);
+        showChapterSummary(oldCh, echos);
         return;
     }
     updateCurrentEventUI();
+}
+
+/**
+ * Joue le prologue : la demande, un samedi soir sur la corniche.
+ * Se déroule dans l'écran de jeu, mais sans le HUD — c'est un moment de récit,
+ * pas une scène de gestion. Le HUD réapparaît avec le chapitre 1.
+ * @param {() => void} fin appelé quand la séquence est terminée
+ */
+export function jouerPrologue(fin) {
+    enCinematique = true;
+    showScreen(screens.GAME);          // le drapeau est déjà levé : pas de dilemme
+    const hud = getEl('game-hud');
+    if (hud) hud.style.display = 'none';
+
+    const container = getEl('game-scroll-container');
+    container.classList.add('en-cinematique');
+
+    jouerCinematique(container, sequenceDeLaDemande().map(p => ({
+        ...p,
+        texte: p.texte ? formatText(p.texte) : p.texte
+    })), () => {
+        enCinematique = false;
+        container.classList.remove('en-cinematique');
+        if (hud) hud.style.display = '';
+        restoreDilemmaView();
+        updateHUD();
+        if (fin) fin();
+    });
 }
 
 /**
@@ -429,6 +465,12 @@ function getPillarGridMarkup() {
  * archivage dans le Hall, puis choix de revivre ou de revenir au menu.
  */
 function showFinDeVie() {
+    // Filet de sécurité : si la partie s'achève sans passer par une bascule de
+    // chapitre, les échos encore en attente se règlent ici — avant le verdict,
+    // jamais après.
+    resoudreEchos(true);
+    calculateBalance();
+
     const bilan = evaluateLifePath();
     const chrono = state.progress.chronology || [];
     const derniere = chrono[chrono.length - 1];
@@ -490,6 +532,7 @@ function showFinDeVie() {
 }
 
 export function updateCurrentEventUI() {
+    if (enCinematique) return;
     const event = getCurrentEvent();
     if (!event) { showFinDeVie(); return; }
 
@@ -518,7 +561,6 @@ export function updateCurrentEventUI() {
     // le joueur voit sa vie changer sans qu'aucun texte le lui dise.
     const enPied = paliterDe(state.user.protagonist, state.progress.chapterIndex,
                              state.progress.stats);
-    const bouche = enPied ? boucheDe(enPied) : null;
 
     container.innerHTML = `
         <div class="dilemma-image-container">
@@ -526,9 +568,6 @@ export function updateCurrentEventUI() {
             ${enPied ? `
             <div id="perso-scene" class="perso-scene">
                 <img class="perso-corps" src="${enPied}" alt="">
-                ${bouche ? bouche.visemes.map((v, n) => `
-                <img class="perso-bouche" data-viseme="${n}" src="${v}" alt=""
-                     style="left:${bouche.gauche}%;top:${bouche.haut}%;width:${bouche.largeur}%;height:${bouche.hauteur}%">`).join('') : ''}
             </div>` : ''}
         </div>
         <div class="dilemma-content">
@@ -536,7 +575,7 @@ export function updateCurrentEventUI() {
             <div id="typing-text" class="dilemma-text"></div>
             <div class="choices-list">${event.choices
                 .filter(c => !c.conditions || c.conditions(state))
-                .map((c, i) => `<button class="choice-btn" data-index="${i}"><span>${formatText(c.text)}</span></button>`).join('')}</div>
+                .map((c, i) => `<button class="choice-btn${c.echo ? ' choice-differe' : ''}" data-index="${i}"><span>${formatText(c.text)}</span>${c.echo ? '<em class="marque-differe">tu n\'en verras pas la suite tout de suite</em>' : ''}</button>`).join('')}</div>
         </div>
     `;
 
@@ -597,6 +636,14 @@ export function updateCurrentEventUI() {
  * jamais bloqué, puisque passer à la scène suivante lève le verrou.
  */
 let sceneTranchee = null;
+
+/**
+ * Vrai pendant une cinématique.
+ * L'écran de jeu affiche normalement le dilemme courant dès qu'il devient
+ * actif ; pendant une séquence narrative, cela ferait apparaître et lire la
+ * scène suivante par-dessus le récit.
+ */
+let enCinematique = false;
 
 function handleChoice(choice, eventId) {
     if (sceneTranchee === eventId) return;
@@ -666,6 +713,10 @@ function handleChoice(choice, eventId) {
     if (event.image && !state.progress.unlockedIllustrations.includes(event.image)) {
         state.progress.unlockedIllustrations.push(event.image);
     }
+
+    // Un choix qui porte un écho ne livre pas tout maintenant : sa part
+    // différée est mise en attente et tombera deux chapitres plus loin.
+    programmerEcho(choice);
 
     calculateBalance();
     saveGame();
@@ -784,7 +835,7 @@ export async function showChapterIntro(idx) {
     }, 3000));
 }
 
-function showChapterSummary(chapterIdx) {
+function showChapterSummary(chapterIdx, echos = []) {
     const chapitre = STORY_DATA.chapters[chapterIdx];
     const suivant = STORY_DATA.chapters[state.progress.chapterIndex];
     const decisions = (state.progress.chronology || []).filter(c => c.chapterIndex === chapterIdx);
@@ -801,6 +852,15 @@ function showChapterSummary(chapterIdx) {
                 pas se sont refroidis. Rien ne reste acquis.</p>
 
             ${getPillarGridMarkup()}
+
+            ${echos.length ? `
+                <h3 class="cinzel summary-sous">CE QUE VOUS AVIEZ SEMÉ</h3>
+                <div class="summary-echos">
+                    ${echos.map(e => `<div class="summary-echo">
+                        <div class="echo-titre">${formatText(e.titre)}</div>
+                        <p>${formatText(e.texte)}</p>
+                    </div>`).join('')}
+                </div>` : ''}
 
             <h3 class="cinzel summary-sous">CE QUE VOUS AVEZ CHOISI</h3>
             <div class="summary-decisions">
@@ -822,6 +882,10 @@ function showChapterSummary(chapterIdx) {
             `Le temps a passé : chaque pilier a perdu ${USURE_PAR_CHAPITRE} points.`,
             'Ce que vous avez choisi.'
         ];
+        if (echos.length) {
+            t.splice(3, 0, 'Ce que vous aviez semé.',
+                ...echos.map(e => `${formatText(e.titre)}. ${formatText(e.texte)}`));
+        }
         decisions.forEach(d => t.push(`${formatText(d.title)}. ${formatText(d.result)}`));
         return t.join(' ');
     });

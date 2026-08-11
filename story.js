@@ -1,4 +1,6 @@
-import { state } from './state.js';
+// saveGame est appelée par checkAchievements() : sans cet import, le jeu
+// s'effondre au premier haut fait débloqué, pas avant.
+import { state, saveGame } from './state.js';
 
 export const STORY_DATA = {
     chapters: [
@@ -150,10 +152,21 @@ export const STORY_DATA = {
                             id: 'promise_luxury',
                             relationships: { partner: 4 },
                             text: "Promettre une vie meilleure là-bas.",
-                            result: "Tu tentes de convaincre par les faits et le confort futur. Le lien matériel est fort, mais l'émotionnel reste fragile.",
-                            effects: { argent: 7, love: -2, spirituality: -2 },
+                            result: "Tu convaincs par les faits et le confort futur. {partenaire} accepte. Une promesse a été faite : il faudra bien la tenir.",
+                            effects: { argent: 7, spirituality: -2 },
                             communication: -5,
-                            commitment: 15
+                            commitment: 15,
+                            echo: {
+                                titre: 'La promesse',
+                                variantes: [
+                                    { si: (s) => s.progress.stats.love >= 60,
+                                      texte: "Tu as tenu parole. {partenaire} te le dit un soir, sans emphase : la vie promise est arrivée. Ce genre de phrase ne se dit pas deux fois dans une vie.",
+                                      effects: { love: 8 }, relationships: { partner: 8 } },
+                                    { texte: "{partenaire} ne reparle plus de cette conversation. C'est bien là le problème : une promesse dont on cesse de parler est une promesse qu'on a cessé d'attendre.",
+                                      effects: { love: -12 }, relationships: { partner: -10 } }
+                                ]
+                            }
+
                         },
                         {
                             id: 'vulnerability_share',
@@ -169,11 +182,22 @@ export const STORY_DATA = {
                             id: 'executive_decision',
                             relationships: { partner: -10 },
                             text: "Imposer mon choix comme une nécessité.",
-                            result: "La tension explose. Ta détermination est totale, mais une fissure apparaît dans la fondation de ton foyer.",
-                            effects: { argent: 11, love: -10, health: -4, spirituality: -6 },
+                            result: "La tension explose, puis retombe. {partenaire} suit. Une fissure est apparue dans la fondation du foyer ; reste à savoir si elle travaille.",
+                            effects: { argent: 11, health: -4, spirituality: -6 },
                             disagreements: 3,
                             communication: -20,
-                            trust: -15
+                            trust: -15,
+                            echo: {
+                                titre: 'La fissure',
+                                variantes: [
+                                    { si: (s) => s.progress.stats.love >= 55,
+                                      texte: "La fissure s'est refermée. Vous n'en parlez pas, mais ce que tu as donné depuis a suffi à combler ce que tu avais pris ce jour-là.",
+                                      effects: { love: -2 } },
+                                    { texte: "La fissure a travaillé. Ce n'est pas une dispute : c'est une distance. {partenaire} a cessé de te demander ton avis, et tu ne t'en étais pas [aperçu/aperçue].",
+                                      effects: { love: -16 }, relationships: { partner: -12 } }
+                                ]
+                            }
+
                         }
                     ]
                 },
@@ -217,19 +241,41 @@ export const STORY_DATA = {
                         {
                             id: 'passion_project',
                             text: "Investir pour l'avenir du pays.",
-                            result: "Ton sens du devoir et ton ambition se rejoignent. Tu te sens [fier/fière], malgré le risque financier réel.",
-                            effects: { spirituality: 7, argent: 11, love: -4, health: -2 },
+                            result: "Ton sens du devoir et ton ambition se rejoignent. L'argent est parti ; ce qu'il deviendra, personne ne le sait encore.",
+                            effects: { spirituality: 7, love: -4, health: -2 },
                             traits: { courage: 15, generosity: 10 },
-                            commitment: 10
+                            commitment: 10,
+                            echo: {
+                                titre: 'La start-up',
+                                variantes: [
+                                    { si: (s) => s.progress.stats.argent >= 55,
+                                      texte: "La jeune société a tenu. Tu avais gardé de quoi la soutenir au moment où elle vacillait, et elle a décollé. Ta mise revient multipliée.",
+                                      effects: { argent: 18, spirituality: 3 } },
+                                    { texte: "La société survit, sans plus. Tu n'avais plus les reins pour l'accompagner quand il l'aurait fallu. Tu récupères ta mise, et rien d'autre que la fierté d'avoir essayé.",
+                                      effects: { argent: 3, spirituality: 3 } }
+                                ]
+                            }
+
                         },
                         {
                             id: 'family_safety',
                             relationships: { partner: 7 },
                             text: "Privilégier le confort du foyer.",
-                            result: "La stabilité avant tout. Ta famille dort sur ses deux oreilles, mais tu te demandes si tu n'as pas manqué le train du futur.",
-                            effects: { love: 5, health: 7, argent: -3, spirituality: -6 },
+                            result: "La stabilité avant tout. Ta famille dort sur ses deux oreilles. Tu sauras plus tard si c'était de la prudence ou de la peur.",
+                            effects: { love: 5, health: 7 },
                             traits: { prudence: 15 },
-                            trust: 10
+                            trust: 10,
+                            echo: {
+                                titre: 'La réserve',
+                                variantes: [
+                                    { si: (s) => s.progress.stats.argent < 45,
+                                      texte: "La réserve que tu avais refusé de risquer t'a tenu debout quand tout s'est resserré. Ce n'était pas de la peur.",
+                                      effects: { argent: 6, health: 3, spirituality: -4 } },
+                                    { texte: "Tu apprends que la start-up a levé des fonds. Sans toi. Tu n'avais pas besoin de cette sécurité, finalement, et tu t'y es [accroché/accrochée] quand même.",
+                                      effects: { argent: -6, spirituality: -8 } }
+                                ]
+                            }
+
                         }
                     ]
                 }
@@ -287,21 +333,43 @@ export const STORY_DATA = {
                             id: 'support_unconditionally',
                             relationships: { partner: 12 },
                             text: "Soutenir ce rêve totalement.",
-                            result: "L'amour et la complicité atteignent des sommets. Vous êtes une équipe, même si ton dos courbe sous le poids du travail supplémentaire.",
-                            effects: { love: 8, health: -6, argent: 7, spirituality: 4 },
+                            result: "L'amour et la complicité atteignent des sommets. Vous êtes une équipe. Ce que {partenaire} bâtira de cette année, tu ne le sauras pas avant longtemps.",
+                            effects: { love: 8, health: -6 },
                             traits: { generosity: 15, courage: 10 },
                             complicity: 25,
-                            commitment: 20
+                            commitment: 20,
+                            echo: {
+                                titre: "Le pari de l'autre",
+                                variantes: [
+                                    { si: (s) => s.progress.stats.love >= 65,
+                                      texte: "{partenaire} a réussi. Pas spectaculairement, mais solidement, et le foyer tient désormais sur deux jambes au lieu d'une. Tu n'avais pas mesuré à quel point tu portais seul[e].",
+                                      effects: { argent: 14, spirituality: 6 }, relationships: { partner: 10 } },
+                                    { texte: "{partenaire} a renoncé en cours de route. Ce n'est venu ni d'un échec ni d'une dispute : simplement, personne ne demandait plus où ça en était.",
+                                      effects: { argent: -3, love: -4, spirituality: -2 } }
+                                ]
+                            }
+
                         },
                         {
                             id: 'ask_for_wait',
                             relationships: { partner: -7 },
                             text: "Demander d'attendre un meilleur moment.",
-                            result: "La sécurité financière est maintenue, mais une tristesse silencieuse s'installe dans le regard de {partenaire}.",
-                            effects: { argent: 7, health: 4, love: -8, spirituality: -4 },
+                            result: "La sécurité financière est maintenue. {partenaire} accepte d'attendre. On verra ce que devient une chose qu'on met de côté.",
+                            effects: { argent: 7, health: 4 },
                             traits: { prudence: 15 },
                             communication: -10,
-                            trust: -10
+                            trust: -10,
+                            echo: {
+                                titre: "Le rêve remis à plus tard",
+                                variantes: [
+                                    { si: (s) => s.progress.stats.love >= 60,
+                                      texte: "Le moment est enfin venu, et {partenaire} s'y est [lancé/lancée] avec ce qu'il fallait de préparation. L'attente aura servi à quelque chose.",
+                                      effects: { love: -2, spirituality: -2 } },
+                                    { texte: "Le meilleur moment n'est jamais venu. {partenaire} n'en parle plus, et ce silence pèse plus lourd qu'un reproche.",
+                                      effects: { love: -14, spirituality: -8 }, relationships: { partner: -10 } }
+                                ]
+                            }
+
                         },
                         {
                             id: 'collaborative_plan',
@@ -357,20 +425,42 @@ export const STORY_DATA = {
                             id: 'choose_mentorship',
                             relationships: { manager: -4 },
                             text: "Devenir son mentor et partager mon temps.",
-                            result: "Ton aide change sa vie. Ta réputation de leader inspirant grandit, même si ton ascension personnelle ralentit légèrement.",
-                            effects: { spirituality: 7, argent: -6, love: 2, health: -3 },
+                            result: "Ton aide change sa vie. Ton ascension personnelle ralentit. Ce que ce temps donné vaut, seul l'avenir le dira.",
+                            effects: { spirituality: 7, love: 2, health: -3 },
                             traits: { generosity: 15, compassion: 10 },
                             communication: 10,
-                            trust: 5
+                            trust: 5,
+                            echo: {
+                                titre: "Celle que tu as formée",
+                                variantes: [
+                                    { si: (s) => s.progress.stats.spirituality >= 60,
+                                      texte: "Elle a réussi, et elle s'est souvenue. Le marché qu'elle t'amène aujourd'hui vaut largement les mois que tu lui as donnés.",
+                                      effects: { argent: 9, spirituality: 3 } },
+                                    { texte: "Elle a réussi, et elle ne t'a pas rappelé[e]. Tu as donné du temps que personne ne rendra. Ce n'était peut-être pas le but, mais ça pique quand même.",
+                                      effects: { argent: -14 } }
+                                ]
+                            }
+
                         },
                         {
                             id: 'focus_promotion',
                             relationships: { manager: 10 },
                             text: "Me concentrer sur ma promotion.",
-                            result: "Tu atteins tes objectifs de carrière avec brio. Mais le soir, un sentiment de vide te rappelle que le succès solitaire a un goût amer.",
-                            effects: { argent: 18, spirituality: -6, health: -4, love: -2 },
+                            result: "Tu atteins tes objectifs de carrière avec brio. Le titre est [obtenu/obtenue] ; ce qu'il y a derrière reste à découvrir.",
+                            effects: { argent: 18, health: -4 },
                             traits: { ambition: 20 },
-                            commitment: 15
+                            commitment: 15,
+                            echo: {
+                                titre: 'La promotion',
+                                variantes: [
+                                    { si: (s) => s.progress.stats.argent >= 70,
+                                      texte: "La promotion tient ses promesses. Le poste est solide, l'équipe te suit. Le soir venu, le silence de l'appartement se remarque un peu plus qu'avant.",
+                                      effects: { spirituality: -4, love: -2 } },
+                                    { texte: "Le titre était creux. Tu diriges un service qu'on va dissoudre, et la jeune diplômée que tu n'as pas aidée occupe désormais le poste que tu visais.",
+                                      effects: { spirituality: -10, love: -6, argent: -8 } }
+                                ]
+                            }
+
                         }
                     ]
                 },
@@ -411,21 +501,43 @@ export const STORY_DATA = {
                             id: 'oppose_contract',
                             relationships: { manager: -12 },
                             text: "M'opposer fermement au contrat.",
-                            result: "Les producteurs sont sauvés. Tu es [respecté/respectée] par la communauté, mais tes supérieurs te voient désormais comme un obstacle.",
-                            effects: { spirituality: 11, argent: -16, love: 4, health: -6 },
+                            result: "Les producteurs sont sauvés. Tes supérieurs te regardent autrement, sans rien dire encore. L'addition viendra plus tard.",
+                            effects: { spirituality: 11, love: 4, health: -6 },
                             traits: { courage: 25, honesty: 20 },
                             communication: 15,
-                            commitment: -10
+                            commitment: -10,
+                            echo: {
+                                titre: 'Le prix de l\'intégrité',
+                                variantes: [
+                                    { si: (s) => s.progress.stats.spirituality >= 65,
+                                      texte: "Ta réputation a fait le tour. Ceux que tu as [défendu/défendue] ce jour-là t'ouvrent aujourd'hui des portes que ton ancienne société n'aurait jamais ouvertes.",
+                                      effects: { argent: -5, spirituality: 4 } },
+                                    { texte: "On ne t'a pas [licencié/licenciée] : on t'a mis[e] de côté. Les dossiers passent à côté de ton bureau depuis des mois, et personne ne t'a rien expliqué.",
+                                      effects: { argent: -22 } }
+                                ]
+                            }
+
                         },
                         {
                             id: 'stay_silent',
                             relationships: { manager: 7 },
                             text: "Rester silencieux et laisser faire.",
-                            result: "Le contrat est signé. Ta position est sécurisée et tes bonus tombent, mais tu évites désormais de croiser ton propre regard dans le miroir.",
-                            effects: { argent: 18, spirituality: -11, health: -6, love: -2 },
+                            result: "Le contrat est signé, tes bonus tombent. Tu évites ton propre regard dans le miroir, mais l'affaire est close. Enfin, close.",
+                            effects: { argent: 18, health: -6 },
                             traits: { prudence: 10 },
                             commitment: 20,
-                            trust: -15
+                            trust: -15,
+                            echo: {
+                                titre: 'Le contrat',
+                                variantes: [
+                                    { si: (s) => s.progress.stats.spirituality >= 60,
+                                      texte: "L'affaire n'est jamais ressortie. Tu as [construit/construite] assez de choses justes depuis pour que ce jour-là ne soit plus qu'un jour.",
+                                      effects: { spirituality: -6 } },
+                                    { texte: "L'affaire est ressortie. Un journaliste a retrouvé les comptes rendus, et ton nom figure dans la liste de ceux qui étaient dans la salle et n'ont rien dit.",
+                                      effects: { spirituality: -14, argent: -8, love: -4 } }
+                                ]
+                            }
+
                         }
                     ]
                 }
@@ -507,19 +619,41 @@ export const STORY_DATA = {
                         {
                             id: 'seek_justice_calmly',
                             text: "Rassembler des preuves et confronter.",
-                            result: "La vérité éclate, mais le climat devient toxique. Tu récupères ton projet mais perds ta sérénité.",
-                            effects: { argent: 7, spirituality: -6, health: -4, love: 2 },
+                            result: "La vérité éclate. Tu récupères ton projet. Le climat, lui, ne redeviendra pas ce qu'il était.",
+                            effects: { argent: 7, health: -4, love: 2 },
                             traits: { honesty: 20, courage: 10 },
-                            communication: 10
+                            communication: 10,
+                            echo: {
+                                titre: 'Le climat',
+                                variantes: [
+                                    { si: (s) => s.progress.stats.health >= 55,
+                                      texte: "Tu as encaissé. Le collègue est parti, la tension est retombée, et tu as tenu debout assez longtemps pour voir ça.",
+                                      effects: { spirituality: -3 } },
+                                    { texte: "Tu as gagné et tu t'es [usé/usée]. Deux ans à surveiller tes arrières dans un bureau où plus personne ne se parle vraiment.",
+                                      effects: { spirituality: -10, health: -8 } }
+                                ]
+                            }
+
                         },
                         {
                             id: 'let_go_and_start_over',
                             text: "Lâcher prise et me réinventer ailleurs.",
-                            result: "Tu quittes ce nid de vipères. Le choc financier est dur, mais ton âme respire enfin.",
-                            effects: { argent: -14, spirituality: 8, health: 12, love: 4 },
+                            result: "Tu quittes ce nid de vipères. Ton âme respire enfin. Il faudra bien, un jour, regarder les comptes.",
+                            effects: { spirituality: 8, health: 12, love: 4 },
                             traits: { resilience: 20, patience: 10 },
                             trust: 15,
-                            complicity: 10
+                            complicity: 10,
+                            echo: {
+                                titre: 'Le recommencement',
+                                variantes: [
+                                    { si: (s) => s.progress.stats.spirituality >= 70,
+                                      texte: "Ton départ t'a fait une réputation d'homme intègre, et ceux qui savaient ce qui s'était passé t'ont rappelé[e]. Le trou financier s'est refermé plus vite que prévu.",
+                                      effects: { argent: -4 } },
+                                    { texte: "Partir coûtait plus cher que tu ne l'avais [estimé/estimée]. Deux ans à reconstruire, et le compte n'y est toujours pas.",
+                                      effects: { argent: -21 } }
+                                ]
+                            }
+
                         }
                     ]
                 },
@@ -1302,4 +1436,107 @@ export function advanceStory() {
     }
     
     return getCurrentEvent();
+}
+
+/* ==========================================================================
+ * ÉCHOS — les conséquences différées
+ * ==========================================================================
+ *
+ * Un choix peut porter un champ `echo`. Ses effets ne s'appliquent alors pas
+ * sur le coup : ils tombent deux chapitres plus tard, sous une forme que le
+ * joueur ne connaît pas au moment où il tranche.
+ *
+ * Motif : tant qu'un choix affiche son coût immédiatement, le joueur fait une
+ * addition. Il ne peut arbitrer un dilemme que s'il ignore laquelle des deux
+ * options il regrettera. L'écho rétablit cette ignorance.
+ *
+ * Un écho peut avoir plusieurs `variantes`, départagées par un prédicat `si`
+ * évalué au moment où il tombe — pas au moment du choix. Ce que le joueur a
+ * fait entre-temps décide donc de ce que son ancien pari lui rapporte. La
+ * dernière variante, sans `si`, sert de cas par défaut.
+ *
+ * Seul `{ choiceId, cible }` est écrit dans la sauvegarde : les textes et les
+ * prédicats sont retrouvés dans STORY_DATA au moment de la résolution. Un
+ * prédicat ne survivrait pas à un JSON.stringify.
+ */
+
+export const DELAI_ECHO_DEFAUT = 2;
+
+/** Index choiceId → choix, construit une fois au chargement du module. */
+const INDEX_DES_CHOIX = (() => {
+    const idx = {};
+    for (const chapitre of STORY_DATA.chapters) {
+        for (const evenement of chapitre.events) {
+            for (const choix of (evenement.choices || [])) idx[choix.id] = choix;
+        }
+    }
+    return idx;
+})();
+
+/** Met un écho en attente. Appelé au moment où le joueur tranche. */
+export function programmerEcho(choix) {
+    if (!choix || !choix.echo) return;
+    if (!Array.isArray(state.progress.echos)) state.progress.echos = [];
+    state.progress.echos.push({
+        choiceId: choix.id,
+        cible: state.progress.chapterIndex + (choix.echo.delai || DELAI_ECHO_DEFAUT)
+    });
+}
+
+function varianteRetenue(echo) {
+    const liste = echo.variantes || [];
+    for (const v of liste) {
+        if (!v.si) return v;
+        try { if (v.si(state)) return v; } catch (e) { /* prédicat cassé : on passe */ }
+    }
+    return liste[liste.length - 1] || { texte: '', effects: {} };
+}
+
+/**
+ * Fait tomber les échos arrivés à échéance et applique leurs effets.
+ * @param {boolean} forcer vide la file quelle que soit l'échéance — utilisé
+ *        à l'entrée du dernier chapitre, pour qu'aucun pari ne reste en l'air
+ *        au moment du verdict.
+ * @returns {Array<{titre:string, texte:string, effects:Object}>} de quoi
+ *        raconter au joueur ce qui vient de lui revenir.
+ */
+export function resoudreEchos(forcer = false) {
+    if (!Array.isArray(state.progress.echos)) state.progress.echos = [];
+    const restants = [], tombes = [];
+
+    for (const attente of state.progress.echos) {
+        const du = forcer || attente.cible <= state.progress.chapterIndex;
+        if (!du) { restants.push(attente); continue; }
+
+        const choix = INDEX_DES_CHOIX[attente.choiceId];
+        if (!choix || !choix.echo) continue;   // scénario modifié depuis la sauvegarde
+
+        const v = varianteRetenue(choix.echo);
+        const effets = v.effects || {};
+        Object.entries(effets).forEach(([pilier, delta]) => {
+            if (state.progress.stats[pilier] === undefined) return;
+            state.progress.stats[pilier] =
+                Math.max(0, Math.min(100, state.progress.stats[pilier] + delta));
+        });
+        if (v.relationships) {
+            Object.entries(v.relationships).forEach(([qui, delta]) => {
+                const p = state.progress.characters[qui];
+                if (p) p.relationship = Math.max(0, Math.min(100, p.relationship + delta));
+            });
+        }
+        tombes.push({
+            titre: choix.echo.titre || 'Ce que tu avais semé',
+            texte: v.texte || '',
+            effects: effets
+        });
+    }
+
+    state.progress.echos = restants;
+    if (tombes.length) saveGame();
+    return tombes;
+}
+
+/** Y a-t-il des paris encore en suspens ? Sert à l'affichage du bilan. */
+export function echosEnAttente() {
+    return Array.isArray(state.progress.echos) ? state.progress.echos.length : 0;
 }

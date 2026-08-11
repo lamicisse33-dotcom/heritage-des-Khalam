@@ -10,7 +10,7 @@ const SAVE_KEY = JEU.CLE_SAUVEGARDE;
  * Une sauvegarde d'un autre schéma est écartée proprement au lieu d'être
  * fusionnée à moitié, ce qui produisait un état incohérent silencieux.
  */
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 export const state = {
     hasSave: false,
@@ -62,6 +62,10 @@ export const state = {
         chronology: [], // Each item: { chapterIndex, eventId, choiceId, title, result, timestamp }
         unlockedIllustrations: [], // Paths to images seen
         unlockedLore: [], // IDs of lore entries discovered
+        // Conséquences différées en attente : { choiceId, cible }. Voir story.js.
+        // Seules ces deux clés sont sérialisables — textes et prédicats sont
+        // retrouvés dans STORY_DATA au moment où l'écho tombe.
+        echos: [],
         characters: {
             partner: {
                 id: 'partner',
@@ -251,6 +255,7 @@ export function resetForNewLife() {
         balance: { score: 100, level: 'Harmonie profonde', status: 'stable' },
         chronology: [],
         unlockedIllustrations: [],
+        echos: [],
         unlockedLore: [],
         characters: {
             partner: { id: 'partner', name: '', role: 'Le Partenaire', relationship: 50, trust: 50, complicity: 50, respect: 50, influence: 50, disagreements: 0, communication: 50, commitment: 50, memories: [] },
